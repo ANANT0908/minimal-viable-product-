@@ -1,0 +1,20 @@
+{
+  "signup": "Sign Up",
+  "login": "Login",
+  "email": "Email",
+  "password": "Password",
+  "gender": "Gender",
+  "female": "Female",
+  "male": "Male",
+  "only_female": "Only female users can register.",
+  "mark_complete": "Mark as complete",
+  "welcome": "Welcome, {{email}}",
+  "course_dashboard": "Course Dashboard",
+  "watched": "watched",
+  "completed": "Completed",
+  "mark_as_complete": "Mark as Complete",
+  "logout": "Logout",
+  "logout_failed": "Logout failed",
+  "no_account": "Don't have an account?",
+   "already_have_account": "Already have an account?"
+}

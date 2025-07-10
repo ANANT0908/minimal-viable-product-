@@ -1,0 +1,22 @@
+{
+  "signup": "Registrieren",
+  "login": "Anmelden",
+  "email": "E-Mail",
+  "password": "Passwort",
+  "gender": "Geschlecht",
+  "female": "Weiblich",
+  "male": "Männlich",
+  "only_female": "Nur weibliche Benutzer sind erlaubt.",
+  "dashboard": "Armaturenbrett",
+  "view_lesson": "Lektion ansehen",
+  "mark_complete": "Als abgeschlossen markieren",
+  "mark_incomplete": "Als unvollständig markieren",
+  "course_dashboard": "Kursübersicht",
+  "watched": "gesehen",
+  "completed": "Abgeschlossen",
+  "mark_as_complete": "Als abgeschlossen markieren",
+  "logout": "Abmelden",
+  "logout_failed": "Abmeldung fehlgeschlagen",
+  "no_account": "Du hast noch kein Konto?",
+   "already_have_account": "Du hast bereits ein Konto?"
+}
