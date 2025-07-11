@@ -5,6 +5,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from '@/lib/firebase';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
+import { ensureUserDocumentExists } from '@/lib/ensureUserDocumentExists';
 
 export default function Signup() {
   const [email, setEmail] = useState('');
@@ -33,7 +34,7 @@ export default function Signup() {
       router.push('/dashboard');
     } catch (error) {
       console.error("Signup error:", error);
-      alert(error); 
+      alert(error);
     }
   };
 
@@ -41,7 +42,7 @@ export default function Signup() {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-
+      await ensureUserDocumentExists(user);
       await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
         gender: 'female',

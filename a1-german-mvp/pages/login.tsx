@@ -3,6 +3,7 @@ import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
+import { ensureUserDocumentExists } from '@/lib/ensureUserDocumentExists';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -12,7 +13,9 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, pass);
+      const result = await signInWithEmailAndPassword(auth, email, pass);
+      const user = result.user;
+      await ensureUserDocumentExists(user);
       router.push('/dashboard');
     } catch (err: any) {
       alert(err.message);

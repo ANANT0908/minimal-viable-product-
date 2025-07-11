@@ -84,6 +84,8 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
           alignItems: 'flex-start',
           p: 4,
           overflowY: 'auto',
+          margin:'0',
+          padding:'0'
         }}
       >
         {children}

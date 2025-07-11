@@ -107,7 +107,9 @@ const Dashboard: React.FC = () => {
             },
           },
         });
-        players.current[video.id] = player;
+        if (expandedVideoId === video.id) {
+          players.current[video.id] = player;
+        }
       } else {
         setTimeout(initPlayer, 500);
       }
@@ -125,12 +127,13 @@ const Dashboard: React.FC = () => {
       if (!duration || !currentTime || isNaN(duration) || isNaN(currentTime)) return;
 
       const percent = Math.floor((currentTime / duration) * 100);
-      setProgressMap((prev) => {
-        const current = prev[videoId] || 0;
-        return percent > current ? { ...prev, [videoId]: percent } : prev;
-      });
 
-      if (userId) {
+      setProgressMap((prev) => ({
+        ...prev,
+        [videoId]: percent,
+      }));
+
+      if (userId && percent > (progressMap[videoId] || 0)) {
         updateDoc(doc(db, 'users', userId), {
           [`progress.${videoId}`]: percent,
         });
@@ -150,12 +153,13 @@ const Dashboard: React.FC = () => {
   };
 
   const toggleVideo = (id: string) => {
-    if (expandedVideoId === id) {
-      stopTracking(id);
-      setExpandedVideoId(null);
-    } else {
-      setExpandedVideoId(id);
+    if (expandedVideoId && players.current[expandedVideoId]) {
+      stopTracking(expandedVideoId);
+      players.current[expandedVideoId].destroy?.();
+      delete players.current[expandedVideoId];
     }
+
+    setExpandedVideoId((prev) => (prev === id ? null : id));
   };
 
   const markAsComplete = async (videoId: string) => {
@@ -165,6 +169,13 @@ const Dashboard: React.FC = () => {
     });
     setCompletedMap((prev) => ({ ...prev, [videoId]: true }));
   };
+
+  useEffect(() => {
+    return () => {
+      Object.values(players.current).forEach((player) => player.destroy?.());
+      Object.values(trackingIntervals.current).forEach(clearInterval);
+    };
+  }, []);
 
   return (
     <div
