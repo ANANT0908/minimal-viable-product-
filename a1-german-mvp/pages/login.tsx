@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { auth, db, googleProvider } from '@/lib/firebase';
 import { useTranslation } from 'react-i18next';
-import { ensureUserDocumentExists } from '@/lib/ensureUserDocumentExists';
-import toast from 'react-hot-toast';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 import {
   Box,
@@ -16,6 +16,7 @@ import {
   Typography,
   Stack,
   CircularProgress,
+  Tooltip,
 } from '@mui/material';
 
 export default function Login() {
@@ -25,151 +26,173 @@ export default function Login() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const router = useRouter();
   const { t, i18n } = useTranslation();
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const validateInputs = (): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) {
-      toast.error(t('auth.login.validation.email_required'));
-      return false;
-    }
-    if (!emailRegex.test(email)) {
-      toast.error(t('auth.login.validation.invalid_email'));
-      return false;
-    }
-    if (!pass) {
-      toast.error(t('auth.login.validation.password_required'));
-      return false;
-    }
-    if (pass.length < 6) {
-      toast.error(t('auth.login.validation.password_too_short'));
-      return false;
-    }
-    return true;
-  };
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const handleLogin = async () => {
-    if (!validateInputs()) return;
+    if (!email || !pass) {
+      return toast.error('⚠️ ' + t('auth.login.error.required_fields'));
+    }
 
     setLoading(true);
     try {
       const result = await signInWithEmailAndPassword(auth, email, pass);
-      await ensureUserDocumentExists(result.user);
-      toast.success(t('auth.login.success'));
+      const userRef = doc(db, 'users', result.user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists() || userSnap.data()?.gender !== 'female') {
+        toast.error('🚫 ' + t('auth.signup.only_female'));
+        return;
+      }
+
+      toast.success('✅ ' + t('auth.login.success'));
       router.push(`/${i18n.language}/dashboard`);
     } catch (err: any) {
-      const errors: Record<string, string> = {
-        'auth/user-not-found': t('auth.login.error.user_not_found'),
+      const errs: Record<string, string> = {
         'auth/wrong-password': t('auth.login.error.wrong_password'),
-        'auth/too-many-requests': t('auth.login.error.too_many_requests'),
-        'auth/popup-closed-by-user': t('auth.login.error.popup_closed'),
-        'auth/network-request-failed': t('auth.login.error.network_failed'),
+        'auth/user-not-found': t('auth.login.error.user_not_found'),
+        'auth/invalid-email': t('auth.login.error.invalid_email'),
       };
-      toast.error(errors[err.code] || t('auth.login.error.default'));
+      toast.error(errs[err.code] || '❌ ' + t('auth.login.error.default'));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogle = async () => {
     setGoogleLoading(true);
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      await ensureUserDocumentExists(result.user);
-      toast.success(t('auth.login.success_google'));
+      const userRef = doc(db, 'users', result.user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const data = userSnap.data();
+        if (data.gender !== 'female') {
+          toast.error('🚫 ' + t('auth.signup.only_female'));
+          return;
+        }
+      }
+
+      toast.success('✅ ' + t('auth.login.success'));
       router.push(`/${i18n.language}/dashboard`);
     } catch (err: any) {
-      toast.error(t('auth.login.error.google') || err.message);
+      const errs: Record<string, string> = {
+        'auth/popup-closed-by-user': t('auth.signup.error.popup_closed'),
+        'auth/cancelled-popup-request': t('auth.signup.error.popup_cancelled'),
+      };
+      toast.error(errs[err.code] || '⚠️ ' + t('auth.signup.error.google'));
     } finally {
       setGoogleLoading(false);
     }
   };
 
+  const handleKey = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleLogin();
+  };
+
   return (
     <Box
       sx={{
-        width: '40%',
-        minWidth: 350,
-        mx: 'auto',
-        mt: 6,
-        p: 4,
-        backgroundColor: 'background.paper',
-        borderRadius: 3,
-        boxShadow: 3,
-        textAlign: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #f0f4f8, #d9e2ec)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        p: 2,
       }}
     >
-      <Typography variant="h5" mb={3}>
-        {t('auth.login.title')}
-      </Typography>
+      <Box
+        sx={{
+          backdropFilter: 'blur(12px)',
+          backgroundColor: 'rgba(255,255,255,0.8)',
+          p: 4,
+          borderRadius: 4,
+          boxShadow: 8,
+          maxWidth: 420,
+          width: '100%',
+          textAlign: 'center',
+        }}
+      >
+        <Typography variant="h5" fontWeight="bold" mb={3}>
+          {t('auth.login.title')}
+        </Typography>
 
-      <Stack spacing={2}>
-        <TextField
-          type="email"
-          label={t('common.email')}
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          fullWidth
-        />
+        <Stack spacing={2}>
+          <Tooltip title={t('auth.signup.tooltip.email') || ''}>
+            <TextField
+              type="email"
+              label={t('common.email')}
+              value={email}
+              inputRef={inputRef}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={handleKey}
+              fullWidth
+            />
+          </Tooltip>
 
-        <TextField
-          type="password"
-          label={t('common.password')}
-          value={pass}
-          onChange={(e) => setPass(e.target.value)}
-          fullWidth
-        />
+          <Tooltip title={t('auth.signup.tooltip.password') || ''}>
+            <TextField
+              type="password"
+              label={t('common.password')}
+              value={pass}
+              onChange={(e) => setPass(e.target.value)}
+              onKeyDown={handleKey}
+              fullWidth
+            />
+          </Tooltip>
 
-        <Button
-          variant="contained"
-          onClick={handleLogin}
-          fullWidth
-          sx={{ py: 1.5 }}
-          disabled={loading}
-        >
-          {loading ? <CircularProgress size={24} color="inherit" /> : t('auth.login.button')}
-        </Button>
+          <Button
+            variant="contained"
+            onClick={handleLogin}
+            fullWidth
+            disabled={loading}
+            sx={{ py: 1.5 }}
+          >
+            {loading ? <CircularProgress size={24} /> : t('auth.login.title')}
+          </Button>
 
-        <Button
-          onClick={handleGoogleLogin}
-          fullWidth
-          disabled={googleLoading}
-          sx={{
-            py: 1.5,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: '1px solid #d1d5db',
-            backgroundColor: '#fff',
-            color: '#000',
-            '&:hover': {
-              backgroundColor: '#f5f5f5',
-            },
-          }}
-        >
-          {googleLoading ? (
-            <CircularProgress size={20} />
-          ) : (
-            <>
-              <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="Google Icon"
-                width={20}
-                style={{ marginRight: 8 }}
-              />
-              {t('auth.login.google')}
-            </>
-          )}
-        </Button>
-      </Stack>
+          <Button
+            variant="outlined"
+            onClick={handleGoogle}
+            fullWidth
+            disabled={googleLoading}
+            startIcon={
+              !googleLoading && (
+                <img
+                  src="https://www.svgrepo.com/show/475656/google-color.svg"
+                  alt="Google"
+                  width={20}
+                />
+              )
+            }
+            sx={{
+              py: 1.5,
+              bgcolor: '#fff',
+              '&:hover': { bgcolor: '#f5f5f5' },
+            }}
+          >
+            {googleLoading ? <CircularProgress size={20} /> : t('auth.login.google')}
+          </Button>
+        </Stack>
 
-      <Typography mt={3}>
-        {t('auth.login.no_account')}{' '}
-        <Link href={`/${i18n.language}/signup`}>
-          <Typography component="span" color="primary" fontWeight="bold">
-            {t('auth.signup.title')}
-          </Typography>
-        </Link>
-      </Typography>
+        <Typography mt={3}>
+          {t('auth.login.no_account')}{' '}
+          <Link href={`/${i18n.language}/signup`} passHref>
+            <Typography
+              component="span"
+              color="primary"
+              fontWeight="bold"
+              sx={{ cursor: 'pointer', textDecoration: 'underline' }}
+            >
+              {t('auth.signup.title')}
+            </Typography>
+          </Link>
+        </Typography>
+      </Box>
     </Box>
   );
 }

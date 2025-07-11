@@ -9,7 +9,6 @@ import {
   Typography,
   Button,
   Paper,
-  Stack,
 } from '@mui/material';
 
 interface Video {
@@ -56,6 +55,7 @@ const Dashboard = () => {
   const [expandedVideoId, setExpandedVideoId] = useState<string | null>(null);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
   const [completedMap, setCompletedMap] = useState<Record<string, boolean>>({});
+  const [loadingCompleteId, setLoadingCompleteId] = useState<string | null>(null);
 
   const players = useRef<Record<string, any>>({});
   const trackingIntervals = useRef<Record<string, ReturnType<typeof setInterval>>>({});
@@ -73,12 +73,16 @@ const Dashboard = () => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         setUserId(user.uid);
-        const docRef = doc(db, 'users', user.uid);
-        const snap = await getDoc(docRef);
-        if (snap.exists()) {
-          const data = snap.data();
-          setProgressMap(data.progress || {});
-          setCompletedMap(data.completed || {});
+        try {
+          const docRef = doc(db, 'users', user.uid);
+          const snap = await getDoc(docRef);
+          if (snap.exists()) {
+            const data = snap.data();
+            setProgressMap(data.progress || {});
+            setCompletedMap(data.completed || {});
+          }
+        } catch (err) {
+          console.error('Failed to fetch user data:', err);
         }
       }
     });
@@ -115,7 +119,7 @@ const Dashboard = () => {
       if (userId && percent > (progressMap[videoId] || 0)) {
         updateDoc(doc(db, 'users', userId), {
           [`progress.${videoId}`]: percent,
-        });
+        }).catch(err => console.error('Error updating progress:', err));
       }
 
       if (percent >= 100) stopTracking(videoId);
@@ -130,8 +134,13 @@ const Dashboard = () => {
   };
 
   const markAsComplete = async (videoId: string) => {
-    if (!userId) return;
+    if (!userId) {
+      console.warn('User not authenticated');
+      return;
+    }
+
     const updatedValue = !completedMap[videoId];
+    setLoadingCompleteId(videoId);
 
     try {
       await updateDoc(doc(db, 'users', userId), {
@@ -142,8 +151,10 @@ const Dashboard = () => {
         ...prev,
         [videoId]: updatedValue,
       }));
-    } catch (err) {
-      console.error('Error updating completion:', err);
+    } catch (err: any) {
+      console.error(`Error updating completion for ${videoId}:`, err.message, err);
+    } finally {
+      setLoadingCompleteId(null);
     }
   };
 
@@ -245,6 +256,7 @@ const Dashboard = () => {
                   mt: 2,
                   backgroundColor: completedMap[video.id] ? 'success.main' : 'primary.main',
                 }}
+                disabled={loadingCompleteId === video.id}
               >
                 {completedMap[video.id]
                   ? `✅ ${t('course.completed')}`
