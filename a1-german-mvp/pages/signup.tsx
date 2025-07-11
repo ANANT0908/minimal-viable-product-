@@ -15,7 +15,7 @@ export default function Signup() {
   const [pass, setPass] = useState('');
   const [gen, setGen] = useState('');
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const handleSignup = async () => {
     if (gen !== 'female') {
@@ -25,7 +25,6 @@ export default function Signup() {
 
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, pass);
-
       await setDoc(doc(db, 'users', userCred.user.uid), {
         email,
         gender: gen,
@@ -35,25 +34,14 @@ export default function Signup() {
       });
 
       toast.success(t('auth.signup.success'));
-      router.push('/dashboard');
-    } 
-    catch (error: any) {
-      let message = t('auth.signup.error.default');
-      if (error?.code) {
-        switch (error.code) {
-          case 'auth/email-already-in-use':
-            message = t('auth.signup.error.email_in_use');
-            break;
-          case 'auth/weak-password':
-            message = t('auth.signup.error.weak_password');
-            break;
-          case 'auth/invalid-email':
-            message = t('auth.signup.error.invalid_email');
-            break;
-        }
-      }
-
-      toast.error(message);
+      router.push(`/${i18n.language}/dashboard`);
+    } catch (error: any) {
+      const errors: Record<string, string> = {
+        'auth/email-already-in-use': t('auth.signup.error.email_in_use'),
+        'auth/weak-password': t('auth.signup.error.weak_password'),
+        'auth/invalid-email': t('auth.signup.error.invalid_email'),
+      };
+      toast.error(errors[error.code] || t('auth.signup.error.default'));
     }
   };
 
@@ -82,27 +70,18 @@ export default function Signup() {
       }
 
       toast.success(t('auth.login.success'));
-      router.push('/dashboard');
+      router.push(`/${i18n.language}/dashboard`);
     } catch (err: any) {
-      let message = t('auth.signup.error.google');
-
-      if (err) {
-        switch (err.code) {
-          case 'auth/popup-closed-by-user':
-            message = t('auth.signup.error.popup_closed');
-            break;
-          case 'auth/cancelled-popup-request':
-            message = t('auth.signup.error.popup_cancelled');
-            break;
-        }
-      }
-
-      toast.error(message);
+      const errors: Record<string, string> = {
+        'auth/popup-closed-by-user': t('auth.signup.error.popup_closed'),
+        'auth/cancelled-popup-request': t('auth.signup.error.popup_cancelled'),
+      };
+      toast.error(errors[err.code] || t('auth.signup.error.google'));
     }
   };
 
   return (
-    <div className="container card">
+    <div style={containerStyle}>
       <h2>{t('auth.signup.title')}</h2>
 
       <input
@@ -110,6 +89,7 @@ export default function Signup() {
         placeholder={t('common.email')}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        style={inputStyle}
       />
 
       <input
@@ -117,25 +97,64 @@ export default function Signup() {
         placeholder={t('common.password')}
         value={pass}
         onChange={(e) => setPass(e.target.value)}
+        style={inputStyle}
       />
 
-      <select value={gen} onChange={(e) => setGen(e.target.value)}>
+      <select value={gen} onChange={(e) => setGen(e.target.value)} style={inputStyle}>
         <option value="">{t('common.gender')}</option>
         <option value="female">{t('common.female')}</option>
         <option value="male">{t('common.male')}</option>
       </select>
 
-      <button onClick={handleSignup}>{t('auth.signup.title')}</button>
+      <button onClick={handleSignup} style={primaryButtonStyle}>
+        {t('auth.signup.title')}
+      </button>
 
       <button className="button-google" onClick={handleGoogleSignIn}>
-        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Icon" />
+        <img
+          src="https://www.svgrepo.com/show/475656/google-color.svg"
+          alt="Google Icon"
+          width={20}
+          style={{ marginRight: 8 }}
+        />
         {t('auth.login.google')}
       </button>
 
       <p style={{ marginTop: '1rem' }}>
         {t('auth.signup.already_have_account')}{' '}
-        <Link href="/login">{t('auth.login.title')}</Link>
+        <Link href={`/${i18n.language}/login`}>{t('auth.login.title')}</Link>
       </p>
     </div>
   );
 }
+
+const containerStyle = {
+  maxWidth: '400px',
+  margin: '5rem auto',
+  padding: '2rem',
+  backgroundColor: '#ffffff',
+  borderRadius: '12px',
+  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+  textAlign: 'center' as const,
+};
+
+const inputStyle = {
+  width: '100%',
+  padding: '0.75rem',
+  borderRadius: '8px',
+  border: '1px solid #d1d5db',
+  marginBottom: '1rem',
+  fontSize: '1rem',
+};
+
+const primaryButtonStyle = {
+  width: '100%',
+  padding: '0.75rem',
+  backgroundColor: '#10b981',
+  color: '#fff',
+  border: 'none',
+  borderRadius: '8px',
+  fontSize: '1rem',
+  cursor: 'pointer',
+  marginBottom: '1rem',
+};

@@ -1,82 +1,50 @@
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider } from '@/lib/firebase';
-import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
 import { ensureUserDocumentExists } from '@/lib/ensureUserDocumentExists';
 import toast from 'react-hot-toast';
+import Link from 'next/link';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const handleLogin = async () => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, pass);
-      const user = result.user;
-      await ensureUserDocumentExists(user);
+      await ensureUserDocumentExists(result.user);
       toast.success(t('auth.login.success'));
-      router.push('/dashboard');
+      router.push(`/${i18n.language}/dashboard`);
     } catch (err: any) {
-      let message = t('auth.login.error.default');
-
-      if (err?.code) {
-        switch (err.code) {
-          case 'auth/user-not-found':
-            message = t('auth.login.error.user_not_found');
-            break;
-          case 'auth/wrong-password':
-            message = t('auth.login.error.wrong_password');
-            break;
-          case 'auth/too-many-requests':
-            message = t('auth.login.error.too_many_requests');
-            break;
-          case 'auth/popup-closed-by-user':
-            message = t('auth.login.error.popup_closed');
-            break;
-          case 'auth/network-request-failed':
-            message = t('auth.login.error.network_failed');
-            break;
-          default:
-            message = t('auth.login.error.default');
-            break;
-        }
-      }
-
-      toast.error(message);
+      const errors: Record<string, string> = {
+        'auth/user-not-found': t('auth.login.error.user_not_found'),
+        'auth/wrong-password': t('auth.login.error.wrong_password'),
+        'auth/too-many-requests': t('auth.login.error.too_many_requests'),
+        'auth/popup-closed-by-user': t('auth.login.error.popup_closed'),
+        'auth/network-request-failed': t('auth.login.error.network_failed'),
+      };
+      toast.error(errors[err.code] || t('auth.login.error.default'));
     }
   };
 
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
-      const user = result.user;
-      await ensureUserDocumentExists(user);
+      await ensureUserDocumentExists(result.user);
       toast.success(t('auth.login.success_google'));
-      router.push('/dashboard');
+      router.push(`/${i18n.language}/dashboard`);
     } catch (err: any) {
       toast.error(t('auth.login.error.google') || err.message);
     }
   };
 
   return (
-    <div
-      style={{
-        maxWidth: '400px',
-        margin: '5rem auto',
-        padding: '2rem',
-        backgroundColor: '#ffffff',
-        borderRadius: '12px',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-        textAlign: 'center',
-      }}
-    >
-      <h2 style={{ marginBottom: '1.5rem', color: '#111827' }}>
-        {t('auth.login.title')}
-      </h2>
-
+    <div style={containerStyle}>
+      <h2>{t('auth.login.title')}</h2>
       <input
         type="email"
         placeholder={t('common.email')}
@@ -91,7 +59,6 @@ export default function Login() {
         onChange={(e) => setPass(e.target.value)}
         style={inputStyle}
       />
-
       <button onClick={handleLogin} style={primaryButtonStyle}>
         {t('auth.login.button')}
       </button>
@@ -100,26 +67,29 @@ export default function Login() {
         <img
           src="https://www.svgrepo.com/show/475656/google-color.svg"
           alt="Google Icon"
+          width={20}
+          style={{ marginRight: 8 }}
         />
         {t('auth.login.google')}
       </button>
 
-      <p style={{ marginTop: '1.5rem', fontSize: '0.95rem' }}>
+      <p style={{ marginTop: '1rem' }}>
         {t('auth.login.no_account')}{' '}
-        <a
-          href="/signup"
-          style={{
-            color: '#3b82f6',
-            textDecoration: 'none',
-            fontWeight: 500,
-          }}
-        >
-          {t('auth.signup.title')}
-        </a>
+        <Link href={`/${i18n.language}/signup`}>{t('auth.signup.title')}</Link>
       </p>
     </div>
   );
 }
+
+const containerStyle = {
+  maxWidth: '400px',
+  margin: '5rem auto',
+  padding: '2rem',
+  backgroundColor: '#ffffff',
+  borderRadius: '12px',
+  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+  textAlign: 'center' as const,
+};
 
 const inputStyle = {
   width: '100%',
