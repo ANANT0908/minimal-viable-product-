@@ -73,7 +73,6 @@ export default function Signup() {
           return;
         }
       } else {
-        // New user → default to female
         await setDoc(userRef, {
           email: user.email,
           gender: 'female',
