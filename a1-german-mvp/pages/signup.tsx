@@ -20,7 +20,6 @@ import {
   InputLabel,
   FormControl,
   CircularProgress,
-  Tooltip,
   useTheme,
 } from '@mui/material';
 
@@ -153,7 +152,6 @@ export default function Signup() {
         </Typography>
 
         <Stack spacing={2}>
-          <Tooltip title={t('auth.signup.tooltip.email') || ''}>
             <TextField
               type="email"
               label={t('common.email')}
@@ -163,9 +161,7 @@ export default function Signup() {
               onKeyDown={handleKey}
               fullWidth
             />
-          </Tooltip>
 
-          <Tooltip title={t('auth.signup.tooltip.password') || ''}>
             <TextField
               type="password"
               label={t('common.password')}
@@ -174,7 +170,6 @@ export default function Signup() {
               onKeyDown={handleKey}
               fullWidth
             />
-          </Tooltip>
 
           <FormControl fullWidth>
             <InputLabel>{t('common.gender')}</InputLabel>

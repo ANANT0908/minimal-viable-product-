@@ -16,7 +16,6 @@ import {
   Typography,
   Stack,
   CircularProgress,
-  Tooltip,
 } from '@mui/material';
 
 export default function Login() {
@@ -122,7 +121,6 @@ export default function Login() {
         </Typography>
 
         <Stack spacing={2}>
-          <Tooltip title={t('auth.signup.tooltip.email') || ''}>
             <TextField
               type="email"
               label={t('common.email')}
@@ -132,9 +130,6 @@ export default function Login() {
               onKeyDown={handleKey}
               fullWidth
             />
-          </Tooltip>
-
-          <Tooltip title={t('auth.signup.tooltip.password') || ''}>
             <TextField
               type="password"
               label={t('common.password')}
@@ -143,7 +138,6 @@ export default function Login() {
               onKeyDown={handleKey}
               fullWidth
             />
-          </Tooltip>
 
           <Button
             variant="contained"
