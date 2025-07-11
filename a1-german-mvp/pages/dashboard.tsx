@@ -12,13 +12,13 @@ interface Video {
 const videos: Video[] = [
   {
     id: 'lesson1',
-    title: 'Intro to AI',
-    url: 'https://www.youtube.com/watch?v=S8ukFF6SdGk',
+    title: 'Numbers 0-20',
+    url: 'https://www.youtube.com/watch?v=d54ioeKA-jc&t=77s',
   },
   {
     id: 'lesson2',
-    title: 'Deep Learning Basics',
-    url: 'https://www.youtube.com/watch?v=aircAruvnKk',
+    title: 'Common Phrases',
+    url: 'https://www.youtube.com/watch?v=S8ukFF6SdGk&t=406s',
   },
 ];
 
@@ -163,12 +163,25 @@ const Dashboard: React.FC = () => {
   };
 
   const markAsComplete = async (videoId: string) => {
-    if (!userId) return;
+  if (!userId) return;
+
+  const current = completedMap[videoId] ?? false;
+  const updatedValue = !current;
+
+  try {
     await updateDoc(doc(db, 'users', userId), {
-      [`completed.${videoId}`]: true,
+      [`completed.${videoId}`]: updatedValue,
     });
-    setCompletedMap((prev) => ({ ...prev, [videoId]: true }));
-  };
+
+    setCompletedMap((prev) => ({
+      ...prev,
+      [videoId]: updatedValue,
+    }));
+  } catch (error) {
+    console.error('Failed to toggle completion status:', error);
+  }
+};
+
 
   useEffect(() => {
     return () => {
@@ -188,7 +201,7 @@ const Dashboard: React.FC = () => {
       }}
     >
       <h2 style={{ fontSize: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
-        📚 {t('course_dashboard')}
+        📚 {t('course.dashboard')}
       </h2>
 
       {videos.map((video) => (
@@ -255,11 +268,9 @@ const Dashboard: React.FC = () => {
                   borderRadius: '0.5rem',
                   fontSize: '1rem',
                   fontWeight: 500,
-                  cursor: completedMap[video.id] ? 'not-allowed' : 'pointer',
                 }}
-                disabled={completedMap[video.id]}
               >
-                {completedMap[video.id] ? `✅ ${t('completed')}` : t('mark_as_complete')}
+                {completedMap[video.id] ? `✅ ${t('completed')}` : t('course.mark_complete')}
               </button>
             </div>
           )}

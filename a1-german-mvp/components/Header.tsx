@@ -11,31 +11,35 @@ import { useTranslation } from 'react-i18next';
 import i18next from 'i18next';
 import LogoutButton from './LogoutButton';
 import { auth } from '@/lib/firebase';
+import toast from 'react-hot-toast';
 
 interface HeaderProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 const Header: React.FC<HeaderProps> = ({ children }) => {
-    const { i18n } = useTranslation();
-    const router = useRouter();
-    const isDashboard = router.pathname === '/dashboard';
+  const { i18n, t } = useTranslation();
+  const router = useRouter();
+  const isDashboard = router.pathname === '/dashboard';
+  const [userEmail, setUserEmail] = useState<string | null>(null);
 
-    const [userEmail, setUserEmail] = useState<string | null>(null);
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUserEmail(user?.email ?? null);
+    });
+    return () => unsubscribe();
+  }, []);
 
-    useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            setUserEmail(user?.email ?? null);
-        });
-        return () => unsubscribe();
-    }, []);
+  const changeLanguage = async (lng: string) => {
+    try {
+      await i18next.changeLanguage(lng);
+      router.replace(router.pathname, router.asPath, { locale: lng });
+    } catch (err) {
+      toast.error(t('error.language_switch') || 'Language change failed.');
+    }
+  };
 
-    const changeLanguage = (lng: string) => {
-        i18next.changeLanguage(lng);
-        router.replace(router.pathname, router.asPath, { locale: lng });
-    };
-
-    return (
+  return (
     <Box
       sx={{
         width: '100vw',
@@ -49,7 +53,7 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
       <AppBar position="static" color="default" elevation={1}>
         <Toolbar sx={{ justifyContent: 'space-between' }}>
           <Typography variant="h6" fontWeight={600}>
-            🚀 A1 German Course
+            🚀 {t('course.title')}
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -60,13 +64,13 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
               size="small"
               sx={{ minWidth: 130, bgcolor: '#fff', borderRadius: 1 }}
             >
-              <MenuItem value="en">🇺🇸 English</MenuItem>
-              <MenuItem value="de">🇩🇪 Deutsch</MenuItem>
+              <MenuItem value="en">🇺🇸 {t('common.english')}</MenuItem>
+              <MenuItem value="de">🇩🇪 {t('common.german')}</MenuItem>
             </Select>
 
             {userEmail && (
               <Typography variant="body2" sx={{ color: '#4b5563' }}>
-                {userEmail}
+                {t('course.welcome', { email: userEmail })}
               </Typography>
             )}
 
@@ -84,8 +88,8 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
           alignItems: 'flex-start',
           p: 4,
           overflowY: 'auto',
-          margin:'0',
-          padding:'0'
+          margin: 0,
+          padding: 0,
         }}
       >
         {children}

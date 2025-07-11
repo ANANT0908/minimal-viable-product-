@@ -1,22 +1,61 @@
 {
-  "signup": "Registrieren",
-  "login": "Anmelden",
-  "email": "E-Mail",
-  "password": "Passwort",
-  "gender": "Geschlecht",
-  "female": "Weiblich",
-  "male": "Männlich",
-  "only_female": "Nur weibliche Benutzer sind erlaubt.",
-  "dashboard": "Armaturenbrett",
-  "view_lesson": "Lektion ansehen",
-  "mark_complete": "Als abgeschlossen markieren",
-  "mark_incomplete": "Als unvollständig markieren",
-  "course_dashboard": "Kursübersicht",
-  "watched": "gesehen",
-  "completed": "Abgeschlossen",
-  "mark_as_complete": "Als abgeschlossen markieren",
-  "logout": "Abmelden",
+  "common": {
+    "email": "E-Mail",
+    "password": "Passwort",
+    "gender": "Geschlecht",
+    "female": "Weiblich",
+    "male": "Männlich",
+    "english": "Englisch",
+    "german": "Deutsch",
+    "logout": "Abmelden",
+    "logout_failed": "Abmeldung fehlgeschlagen"
+  },
+   "logout": "Abmelden",
   "logout_failed": "Abmeldung fehlgeschlagen",
-  "no_account": "Du hast noch kein Konto?",
-   "already_have_account": "Du hast bereits ein Konto?"
+  "error": {
+    "language_switch": "Sprachwechsel fehlgeschlagen. Bitte versuche es erneut."
+  },
+  "auth": {
+    "login": {
+      "title": "Anmeldung",
+      "button": "Anmelden",
+      "google": "Mit Google fortfahren",
+      "no_account": "Noch kein Konto?",
+      "success": "Erfolgreich angemeldet!",
+      "success_google": "Mit Google angemeldet!",
+      "error": {
+        "default": "Authentifizierung fehlgeschlagen. Bitte erneut versuchen.",
+        "user_not_found": "Kein Konto mit dieser E-Mail gefunden.",
+        "wrong_password": "Falsches Passwort. Bitte erneut versuchen.",
+        "too_many_requests": "Zu viele Versuche. Bitte später erneut versuchen.",
+        "popup_closed": "Anmelde-Popup wurde geschlossen. Bitte erneut versuchen.",
+        "network_failed": "Netzwerkfehler. Bitte Internetverbindung überprüfen.",
+        "google": "Google-Anmeldung fehlgeschlagen"
+      }
+    },
+    "signup": {
+      "title": "Registrieren",
+      "button": "Registrieren",
+      "already_have_account": "Bereits ein Konto?",
+      "only_female": "Nur weibliche Nutzer dürfen sich registrieren.",
+      "success": "Registrierung erfolgreich!",
+      "error": {
+        "default": "Registrierung fehlgeschlagen. Bitte erneut versuchen.",
+        "email_in_use": "Diese E-Mail ist bereits registriert.",
+        "weak_password": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+        "invalid_email": "Ungültige E-Mail-Adresse.",
+        "google": "Google-Registrierung fehlgeschlagen.",
+        "popup_closed": "Google-Popup wurde geschlossen.",
+        "popup_cancelled": "Google-Anmeldung wurde abgebrochen."
+      }
+    }
+  },
+  "course": {
+    "title": "A1 Deutschkurs",
+    "dashboard": "Kursübersicht",
+    "welcome": "Willkommen, {{email}}",
+    "watched": "gesehen",
+    "completed": "Abgeschlossen",
+    "mark_complete": "Als abgeschlossen markieren"
+  }
 }

@@ -1,20 +1,61 @@
 {
-  "signup": "Sign Up",
-  "login": "Login",
-  "email": "Email",
-  "password": "Password",
-  "gender": "Gender",
-  "female": "Female",
-  "male": "Male",
-  "only_female": "Only female users can register.",
-  "mark_complete": "Mark as complete",
-  "welcome": "Welcome, {{email}}",
-  "course_dashboard": "Course Dashboard",
-  "watched": "watched",
-  "completed": "Completed",
-  "mark_as_complete": "Mark as Complete",
+  "common": {
+    "email": "Email",
+    "password": "Password",
+    "gender": "Gender",
+    "female": "Female",
+    "male": "Male",
+    "english": "English",
+    "german": "German",
+    "logout": "Logout",
+    "logout_failed": "Logout failed"
+  },
   "logout": "Logout",
   "logout_failed": "Logout failed",
-  "no_account": "Don't have an account?",
-   "already_have_account": "Already have an account?"
+  "error": {
+    "language_switch": "Failed to change language. Please try again."
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "button": "Login",
+      "google": "Continue with Google",
+      "no_account": "Don't have an account?",
+      "success": "Logged in successfully!",
+      "success_google": "Logged in with Google!",
+      "error": {
+        "default": "Authentication failed. Please try again.",
+        "user_not_found": "No account found with this email.",
+        "wrong_password": "Incorrect password. Please try again.",
+        "too_many_requests": "Too many attempts. Please wait and try again later.",
+        "popup_closed": "Login popup was closed. Please try again.",
+        "network_failed": "Network error. Please check your internet connection.",
+        "google": "Google login failed"
+      }
+    },
+    "signup": {
+      "title": "Sign Up",
+      "button": "Sign Up",
+      "already_have_account": "Already have an account?",
+      "only_female": "Only female users are allowed to sign up.",
+      "success": "Signup successful!",
+      "error": {
+        "default": "Signup failed. Please try again.",
+        "email_in_use": "This email is already registered.",
+        "weak_password": "Password should be at least 6 characters.",
+        "invalid_email": "Invalid email address.",
+        "google": "Google sign-in failed. Please try again.",
+        "popup_closed": "Google sign-in popup was closed.",
+        "popup_cancelled": "Google sign-in was cancelled."
+      }
+    }
+  },
+  "course": {
+    "title": "A1 German Course",
+    "dashboard": "Course Dashboard",
+    "welcome": "Welcome, {{email}}",
+    "watched": "watched",
+    "completed": "Completed",
+    "mark_complete": "Mark as complete"
+  }
 }

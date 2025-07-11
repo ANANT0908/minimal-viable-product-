@@ -10,36 +10,37 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const router = useRouter();
-  const { t } = useTranslation('common');
+  const { t } = useTranslation();
 
   const handleLogin = async () => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, pass);
       const user = result.user;
       await ensureUserDocumentExists(user);
-      toast.success('Logged in successfully!');
+      toast.success(t('auth.login.success'));
       router.push('/dashboard');
     } catch (err: any) {
-      let message = 'An unexpected error occurred. Please try again.';
-      if (err) {
+      let message = t('auth.login.error.default');
+
+      if (err?.code) {
         switch (err.code) {
           case 'auth/user-not-found':
-            message = 'No account found with this email.';
+            message = t('auth.login.error.user_not_found');
             break;
           case 'auth/wrong-password':
-            message = 'Incorrect password. Please try again.';
+            message = t('auth.login.error.wrong_password');
             break;
           case 'auth/too-many-requests':
-            message = 'Too many attempts. Please wait and try again later.';
+            message = t('auth.login.error.too_many_requests');
             break;
           case 'auth/popup-closed-by-user':
-            message = 'Login popup was closed. Please try again.';
+            message = t('auth.login.error.popup_closed');
             break;
           case 'auth/network-request-failed':
-            message = 'Network error. Please check your internet connection.';
+            message = t('auth.login.error.network_failed');
             break;
           default:
-            message = 'Authentication failed. Please try again.';
+            message = t('auth.login.error.default');
             break;
         }
       }
@@ -53,10 +54,10 @@ export default function Login() {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       await ensureUserDocumentExists(user);
-      toast.success('Logged in with Google!');
+      toast.success(t('auth.login.success_google'));
       router.push('/dashboard');
     } catch (err: any) {
-      toast.error(err.message || 'Google login failed');
+      toast.error(t('auth.login.error.google') || err.message);
     }
   };
 
@@ -72,34 +73,39 @@ export default function Login() {
         textAlign: 'center',
       }}
     >
-      <h2 style={{ marginBottom: '1.5rem', color: '#111827' }}>{t('login')}</h2>
+      <h2 style={{ marginBottom: '1.5rem', color: '#111827' }}>
+        {t('auth.login.title')}
+      </h2>
 
       <input
         type="email"
-        placeholder={t('email')}
+        placeholder={t('common.email')}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         style={inputStyle}
       />
       <input
         type="password"
-        placeholder={t('password')}
+        placeholder={t('common.password')}
         value={pass}
         onChange={(e) => setPass(e.target.value)}
         style={inputStyle}
       />
 
       <button onClick={handleLogin} style={primaryButtonStyle}>
-        {t('login')}
+        {t('auth.login.button')}
       </button>
 
       <button className="button-google" onClick={handleGoogleLogin}>
-        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Icon" />
-        Continue with Google
+        <img
+          src="https://www.svgrepo.com/show/475656/google-color.svg"
+          alt="Google Icon"
+        />
+        {t('auth.login.google')}
       </button>
 
       <p style={{ marginTop: '1.5rem', fontSize: '0.95rem' }}>
-        {t('no_account')}{" "}
+        {t('auth.login.no_account')}{' '}
         <a
           href="/signup"
           style={{
@@ -108,7 +114,7 @@ export default function Login() {
             fontWeight: 500,
           }}
         >
-          {t('signup')}
+          {t('auth.signup.title')}
         </a>
       </p>
     </div>

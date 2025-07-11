@@ -16,11 +16,11 @@ export default function Signup() {
   const [pass, setPass] = useState('');
   const [gen, setGen] = useState('');
   const router = useRouter();
-  const { t } = useTranslation('common');
+  const { t } = useTranslation();
 
   const handleSignup = async () => {
     if (gen !== 'female') {
-      toast.error(t('only_female') || 'Only female users are allowed to sign up.');
+      toast.error(t('auth.signup.only_female'));
       return;
     }
 
@@ -35,21 +35,21 @@ export default function Signup() {
         createdAt: new Date().toISOString(),
       });
 
-      toast.success('Signup successful!');
+      toast.success(t('auth.signup.success'));
       router.push('/dashboard');
     } catch (error: any) {
-      let message = 'Signup failed. Please try again.';
+      let message = t('auth.signup.error.default');
 
       if (error instanceof FirebaseError) {
         switch (error.code) {
           case 'auth/email-already-in-use':
-            message = 'This email is already registered.';
+            message = t('auth.signup.error.email_in_use');
             break;
           case 'auth/weak-password':
-            message = 'Password should be at least 6 characters.';
+            message = t('auth.signup.error.weak_password');
             break;
           case 'auth/invalid-email':
-            message = 'Invalid email address.';
+            message = t('auth.signup.error.invalid_email');
             break;
         }
       }
@@ -69,7 +69,7 @@ export default function Signup() {
       if (userSnap.exists()) {
         const existingData = userSnap.data();
         if (existingData.gender !== 'female') {
-          toast.error('Only female users are allowed to sign in.');
+          toast.error(t('auth.signup.only_female'));
           return;
         }
       } else {
@@ -82,18 +82,18 @@ export default function Signup() {
         });
       }
 
-      toast.success('Login successful!');
+      toast.success(t('auth.login.success'));
       router.push('/dashboard');
     } catch (err: any) {
-      let message = 'Google sign-in failed. Please try again.';
+      let message = t('auth.signup.error.google');
 
       if (err instanceof FirebaseError) {
         switch (err.code) {
           case 'auth/popup-closed-by-user':
-            message = 'Google sign-in popup was closed.';
+            message = t('auth.signup.error.popup_closed');
             break;
           case 'auth/cancelled-popup-request':
-            message = 'Google sign-in was cancelled.';
+            message = t('auth.signup.error.popup_cancelled');
             break;
         }
       }
@@ -104,37 +104,38 @@ export default function Signup() {
 
   return (
     <div className="container card">
-      <h2>{t('signup')}</h2>
+      <h2>{t('auth.signup.title')}</h2>
 
       <input
         type="email"
-        placeholder={t('email')}
+        placeholder={t('common.email')}
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
 
       <input
         type="password"
-        placeholder={t('password')}
+        placeholder={t('common.password')}
         value={pass}
         onChange={(e) => setPass(e.target.value)}
       />
 
       <select value={gen} onChange={(e) => setGen(e.target.value)}>
-        <option value="">{t('gender')}</option>
-        <option value="female">{t('female')}</option>
-        <option value="male">{t('male')}</option>
+        <option value="">{t('common.gender')}</option>
+        <option value="female">{t('common.female')}</option>
+        <option value="male">{t('common.male')}</option>
       </select>
 
-      <button onClick={handleSignup}>{t('signup')}</button>
+      <button onClick={handleSignup}>{t('auth.signup.title')}</button>
 
       <button className="button-google" onClick={handleGoogleSignIn}>
         <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Icon" />
-        Continue with Google
+        {t('auth.login.google')}
       </button>
 
       <p style={{ marginTop: '1rem' }}>
-        {t('already_have_account')} <Link href="/login">{t('login')}</Link>
+        {t('auth.signup.already_have_account')}{' '}
+        <Link href="/login">{t('auth.login.title')}</Link>
       </p>
     </div>
   );
