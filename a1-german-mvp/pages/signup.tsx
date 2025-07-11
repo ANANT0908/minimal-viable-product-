@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import {
@@ -20,12 +22,15 @@ import {
   Stack,
   InputLabel,
   FormControl,
+  CircularProgress,
 } from '@mui/material';
 
 export default function Signup() {
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
   const [gen, setGen] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const router = useRouter();
   const { t, i18n } = useTranslation();
 
@@ -35,6 +40,7 @@ export default function Signup() {
       return;
     }
 
+    setLoading(true);
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, pass);
       await setDoc(doc(db, 'users', userCred.user.uid), {
@@ -44,7 +50,6 @@ export default function Signup() {
         enrolledCourse: 'A1',
         createdAt: new Date().toISOString(),
       });
-
       toast.success(t('auth.signup.success'));
       router.push(`/${i18n.language}/dashboard`);
     } catch (error: any) {
@@ -54,10 +59,13 @@ export default function Signup() {
         'auth/invalid-email': t('auth.signup.error.invalid_email'),
       };
       toast.error(errors[error.code] || t('auth.signup.error.default'));
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
@@ -89,13 +97,15 @@ export default function Signup() {
         'auth/cancelled-popup-request': t('auth.signup.error.popup_cancelled'),
       };
       toast.error(errors[err.code] || t('auth.signup.error.google'));
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
   return (
     <Box
       sx={{
-        maxWidth: 400,
+        width: '40%',
         mx: 'auto',
         mt: 6,
         p: 4,
@@ -144,13 +154,15 @@ export default function Signup() {
           onClick={handleSignup}
           fullWidth
           sx={{ py: 1.5 }}
+          disabled={loading}
         >
-          {t('auth.signup.title')}
+          {loading ? <CircularProgress size={24} color="inherit" /> : t('auth.signup.title')}
         </Button>
 
         <Button
           onClick={handleGoogleSignIn}
           fullWidth
+          disabled={googleLoading}
           sx={{
             py: 1.5,
             display: 'flex',
@@ -164,13 +176,19 @@ export default function Signup() {
             },
           }}
         >
-          <img
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            alt="Google Icon"
-            width={20}
-            style={{ marginRight: 8 }}
-          />
-          {t('auth.login.google')}
+          {googleLoading ? (
+            <CircularProgress size={20} />
+          ) : (
+            <>
+              <img
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                alt="Google Icon"
+                width={20}
+                style={{ marginRight: 8 }}
+              />
+              {t('auth.login.google')}
+            </>
+          )}
         </Button>
       </Stack>
 

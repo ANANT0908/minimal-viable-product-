@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { auth, db } from '@/lib/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-
 import {
   Box,
   Typography,
@@ -31,11 +30,26 @@ declare global {
 }
 
 const getVideoId = (url: string): string => {
-  const match = url.match(/v=([^&]+)/);
+  const match = url.match(/[?&]v=([^&#]+)/);
   return match?.[1] || '';
 };
 
-const Dashboard: React.FC = () => {
+const waitForYT = (): Promise<void> => {
+  return new Promise((resolve) => {
+    if (window.YT && window.YT.Player) {
+      resolve();
+    } else {
+      const interval = setInterval(() => {
+        if (window.YT && window.YT.Player) {
+          clearInterval(interval);
+          resolve();
+        }
+      }, 200);
+    }
+  });
+};
+
+const Dashboard = () => {
   const { t } = useTranslation('common');
 
   const [userId, setUserId] = useState<string | null>(null);
@@ -53,10 +67,6 @@ const Dashboard: React.FC = () => {
       tag.src = 'https://www.youtube.com/iframe_api';
       document.body.appendChild(tag);
     }
-
-    window.onYouTubeIframeAPIReady = () => {
-      console.log('YouTube API ready');
-    };
   }, []);
 
   useEffect(() => {
@@ -146,38 +156,36 @@ const Dashboard: React.FC = () => {
     const iframeId = `yt-player-${video.id}`;
     const progressPercent = progressMap[video.id] || 0;
 
-    const initPlayer = () => {
-      if (window.YT && window.YT.Player) {
-        const player = new window.YT.Player(iframeId, {
-          events: {
-            onReady: () => {
-              const seek = setInterval(() => {
-                const duration = player.getDuration?.();
-                if (duration && !isNaN(duration)) {
-                  const seekTime = Math.floor((progressPercent / 100) * duration);
-                  if (seekTime > 0) player.seekTo(seekTime, true);
-                  clearInterval(seek);
-                }
-              }, 300);
-            },
-            onStateChange: (event: any) => {
-              if (event.data === window.YT.PlayerState.PLAYING) startTracking(video.id, player);
-              if (event.data === window.YT.PlayerState.ENDED) stopTracking(video.id);
-            },
-          },
-        });
+    const initPlayer = async () => {
+      await waitForYT();
 
-        players.current[video.id] = player;
-      } else {
-        setTimeout(initPlayer, 500);
-      }
+      const player = new window.YT.Player(iframeId, {
+        events: {
+          onReady: () => {
+            const seek = setInterval(() => {
+              const duration = player.getDuration?.();
+              if (duration && !isNaN(duration)) {
+                const seekTime = Math.floor((progressPercent / 100) * duration);
+                if (seekTime > 0) player.seekTo(seekTime, true);
+                clearInterval(seek);
+              }
+            }, 300);
+          },
+          onStateChange: (event: any) => {
+            if (event.data === window.YT.PlayerState.PLAYING) startTracking(video.id, player);
+            if (event.data === window.YT.PlayerState.ENDED) stopTracking(video.id);
+          },
+        },
+      });
+
+      players.current[video.id] = player;
     };
 
     initPlayer();
   }, [expandedVideoId, progressMap]);
 
   return (
-    <Box sx={{ p: 4, maxWidth: 800, mx: 'auto', color: 'text.primary' }}>
+    <Box sx={{ p: 4, width:'60%', mx: 'auto', color: 'text.primary' }}>
       <Typography variant="h4" align="center" mb={4}>
         📚 {t('course.dashboard')}
       </Typography>

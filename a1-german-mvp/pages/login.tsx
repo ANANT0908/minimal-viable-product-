@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
@@ -13,15 +15,19 @@ import {
   Button,
   Typography,
   Stack,
+  CircularProgress,
 } from '@mui/material';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const router = useRouter();
   const { t, i18n } = useTranslation();
 
   const handleLogin = async () => {
+    setLoading(true);
     try {
       const result = await signInWithEmailAndPassword(auth, email, pass);
       await ensureUserDocumentExists(result.user);
@@ -36,10 +42,13 @@ export default function Login() {
         'auth/network-request-failed': t('auth.login.error.network_failed'),
       };
       toast.error(errors[err.code] || t('auth.login.error.default'));
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
+    setGoogleLoading(true);
     try {
       const result = await signInWithPopup(auth, googleProvider);
       await ensureUserDocumentExists(result.user);
@@ -47,13 +56,15 @@ export default function Login() {
       router.push(`/${i18n.language}/dashboard`);
     } catch (err: any) {
       toast.error(t('auth.login.error.google') || err.message);
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
   return (
     <Box
       sx={{
-        maxWidth: 400,
+        width: '40%',
         mx: 'auto',
         mt: 6,
         p: 4,
@@ -89,13 +100,15 @@ export default function Login() {
           onClick={handleLogin}
           fullWidth
           sx={{ py: 1.5 }}
+          disabled={loading}
         >
-          {t('auth.login.button')}
+          {loading ? <CircularProgress size={24} color="inherit" /> : t('auth.login.button')}
         </Button>
 
         <Button
           onClick={handleGoogleLogin}
           fullWidth
+          disabled={googleLoading}
           sx={{
             py: 1.5,
             display: 'flex',
@@ -109,13 +122,19 @@ export default function Login() {
             },
           }}
         >
-          <img
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            alt="Google Icon"
-            width={20}
-            style={{ marginRight: 8 }}
-          />
-          {t('auth.login.google')}
+          {googleLoading ? (
+            <CircularProgress size={20} />
+          ) : (
+            <>
+              <img
+                src="https://www.svgrepo.com/show/475656/google-color.svg"
+                alt="Google Icon"
+                width={20}
+                style={{ marginRight: 8 }}
+              />
+              {t('auth.login.google')}
+            </>
+          )}
         </Button>
       </Stack>
 
