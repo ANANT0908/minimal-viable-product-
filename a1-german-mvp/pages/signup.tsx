@@ -177,9 +177,7 @@ export default function Signup() {
               value={gen}
               onChange={(e) => setGen(e.target.value)}
               label={t('common.gender')}
-              displayEmpty
             >
-              <MenuItem value="">{t('common.gender')}</MenuItem>
               <MenuItem value="female">{t('common.female')}</MenuItem>
               <MenuItem value="male" disabled>
                 {t('common.male')} 🚫
