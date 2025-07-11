@@ -34,11 +34,33 @@ export default function Signup() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
 
-  const handleSignup = async () => {
+  const validateInputs = () => {
+    if (!email || !pass || !gen) {
+      toast.error(t('auth.signup.error.required_fields'));
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error(t('auth.signup.error.invalid_email'));
+      return false;
+    }
+
+    if (pass.length < 6) {
+      toast.error(t('auth.signup.error.weak_password'));
+      return false;
+    }
+
     if (gen !== 'female') {
       toast.error(t('auth.signup.only_female'));
-      return;
+      return false;
     }
+
+    return true;
+  };
+
+  const handleSignup = async () => {
+    if (!validateInputs()) return;
 
     setLoading(true);
     try {
@@ -106,7 +128,7 @@ export default function Signup() {
     <Box
       sx={{
         width: '40%',
-        minWidth:350,
+        minWidth: 350,
         mx: 'auto',
         mt: 6,
         p: 4,

@@ -31,6 +31,12 @@
         "popup_closed": "Login popup was closed. Please try again.",
         "network_failed": "Network error. Please check your internet connection.",
         "google": "Google login failed"
+      },
+      "validation": {
+        "email_required": "Email is required.",
+        "invalid_email": "Invalid email address.",
+        "password_required": "Password is required.",
+        "password_too_short": "Password must be at least 6 characters."
       }
     },
     "signup": {
@@ -46,20 +52,29 @@
         "invalid_email": "Invalid email address.",
         "google": "Google sign-in failed. Please try again.",
         "popup_closed": "Google sign-in popup was closed.",
-        "popup_cancelled": "Google sign-in was cancelled."
+        "popup_cancelled": "Google sign-in was cancelled.",
+        "required_fields": "Please fill in all required fields."
+      },
+      "validation": {
+        "email_required": "Email is required.",
+        "invalid_email": "Invalid email address.",
+        "password_required": "Password is required.",
+        "password_too_short": "Password must be at least 6 characters.",
+        "gender_required": "Gender is required.",
+        "only_female_allowed": "Only female users are allowed to sign up."
       }
     }
   },
   "course": {
     "title": "A1 German Course",
-  "dashboard": "Course Dashboard",
+    "dashboard": "Course Dashboard",
     "welcome": "Welcome, {{email}}",
-  "watched": "watched",
-  "completed": "Completed",
-  "mark_complete": "Mark as complete",
-  "lessons": {
-    "lesson1": "Numbers 0-20",
-    "lesson2": "Common Phrases"
+    "watched": "watched",
+    "completed": "Completed",
+    "mark_complete": "Mark as complete",
+    "lessons": {
+      "lesson1": "Numbers 0-20",
+      "lesson2": "Common Phrases"
+    }
   }
-}
 }

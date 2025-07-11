@@ -10,56 +10,71 @@
     "logout": "Abmelden",
     "logout_failed": "Abmeldung fehlgeschlagen"
   },
-   "logout": "Abmelden",
+  "logout": "Abmelden",
   "logout_failed": "Abmeldung fehlgeschlagen",
   "error": {
-    "language_switch": "Sprachwechsel fehlgeschlagen. Bitte versuche es erneut."
+    "language_switch": "Sprache konnte nicht gewechselt werden. Bitte versuche es erneut."
   },
   "auth": {
     "login": {
-      "title": "Anmeldung",
+      "title": "Anmelden",
       "button": "Anmelden",
       "google": "Mit Google fortfahren",
       "no_account": "Noch kein Konto?",
       "success": "Erfolgreich angemeldet!",
       "success_google": "Mit Google angemeldet!",
       "error": {
-        "default": "Authentifizierung fehlgeschlagen. Bitte erneut versuchen.",
+        "default": "Authentifizierung fehlgeschlagen. Bitte versuche es erneut.",
         "user_not_found": "Kein Konto mit dieser E-Mail gefunden.",
-        "wrong_password": "Falsches Passwort. Bitte erneut versuchen.",
-        "too_many_requests": "Zu viele Versuche. Bitte später erneut versuchen.",
-        "popup_closed": "Anmelde-Popup wurde geschlossen. Bitte erneut versuchen.",
-        "network_failed": "Netzwerkfehler. Bitte Internetverbindung überprüfen.",
+        "wrong_password": "Falsches Passwort. Bitte versuche es erneut.",
+        "too_many_requests": "Zu viele Versuche. Bitte warte und versuche es später erneut.",
+        "popup_closed": "Anmelde-Popup wurde geschlossen. Bitte versuche es erneut.",
+        "network_failed": "Netzwerkfehler. Bitte überprüfe deine Internetverbindung.",
         "google": "Google-Anmeldung fehlgeschlagen"
+      },
+      "validation": {
+        "email_required": "E-Mail ist erforderlich.",
+        "invalid_email": "Ungültige E-Mail-Adresse.",
+        "password_required": "Passwort ist erforderlich.",
+        "password_too_short": "Das Passwort muss mindestens 6 Zeichen lang sein."
       }
     },
     "signup": {
       "title": "Registrieren",
       "button": "Registrieren",
-      "already_have_account": "Bereits ein Konto?",
-      "only_female": "Nur weibliche Nutzer dürfen sich registrieren.",
+      "already_have_account": "Du hast bereits ein Konto?",
+      "only_female": "Nur weibliche Benutzer dürfen sich registrieren.",
       "success": "Registrierung erfolgreich!",
       "error": {
-        "default": "Registrierung fehlgeschlagen. Bitte erneut versuchen.",
+        "default": "Registrierung fehlgeschlagen. Bitte versuche es erneut.",
         "email_in_use": "Diese E-Mail ist bereits registriert.",
         "weak_password": "Das Passwort muss mindestens 6 Zeichen lang sein.",
         "invalid_email": "Ungültige E-Mail-Adresse.",
-        "google": "Google-Registrierung fehlgeschlagen.",
-        "popup_closed": "Google-Popup wurde geschlossen.",
-        "popup_cancelled": "Google-Anmeldung wurde abgebrochen."
+        "google": "Google-Registrierung fehlgeschlagen. Bitte versuche es erneut.",
+        "popup_closed": "Google-Registrierungspopup wurde geschlossen.",
+        "popup_cancelled": "Google-Registrierung wurde abgebrochen.",
+        "required_fields": "Bitte fülle alle Pflichtfelder aus."
+      },
+      "validation": {
+        "email_required": "E-Mail ist erforderlich.",
+        "invalid_email": "Ungültige E-Mail-Adresse.",
+        "password_required": "Passwort ist erforderlich.",
+        "password_too_short": "Das Passwort muss mindestens 6 Zeichen lang sein.",
+        "gender_required": "Geschlecht ist erforderlich.",
+        "only_female_allowed": "Nur weibliche Benutzer dürfen sich registrieren."
       }
     }
   },
- "course": {
+  "course": {
     "title": "A1 Deutschkurs",
-  "dashboard": "Kursübersicht",
+    "dashboard": "Kursübersicht",
     "welcome": "Willkommen, {{email}}",
-    "watched": "gesehen",
-  "completed": "Abgeschlossen",
-  "mark_complete": "Als abgeschlossen markieren",
-  "lessons": {
-    "lesson1": "Zahlen 0–20",
-    "lesson2": "Häufige Redewendungen"
+    "watched": "angesehen",
+    "completed": "Abgeschlossen",
+    "mark_complete": "Als abgeschlossen markieren",
+    "lessons": {
+      "lesson1": "Zahlen 0–20",
+      "lesson2": "Häufige Redewendungen"
+    }
   }
-}
 }

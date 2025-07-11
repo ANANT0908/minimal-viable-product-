@@ -26,7 +26,30 @@ export default function Login() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
 
+  const validateInputs = (): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      toast.error(t('auth.login.validation.email_required'));
+      return false;
+    }
+    if (!emailRegex.test(email)) {
+      toast.error(t('auth.login.validation.invalid_email'));
+      return false;
+    }
+    if (!pass) {
+      toast.error(t('auth.login.validation.password_required'));
+      return false;
+    }
+    if (pass.length < 6) {
+      toast.error(t('auth.login.validation.password_too_short'));
+      return false;
+    }
+    return true;
+  };
+
   const handleLogin = async () => {
+    if (!validateInputs()) return;
+
     setLoading(true);
     try {
       const result = await signInWithEmailAndPassword(auth, email, pass);
@@ -65,7 +88,7 @@ export default function Login() {
     <Box
       sx={{
         width: '40%',
-        minWidth:350,
+        minWidth: 350,
         mx: 'auto',
         mt: 6,
         p: 4,
