@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import {
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+} from 'firebase/auth';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from '@/lib/firebase';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
-import { ensureUserDocumentExists } from '@/lib/ensureUserDocumentExists';
+import toast from 'react-hot-toast';
+import { FirebaseError } from 'firebase/app';
 
 export default function Signup() {
   const [email, setEmail] = useState('');
@@ -16,13 +20,13 @@ export default function Signup() {
 
   const handleSignup = async () => {
     if (gen !== 'female') {
-      alert(t('only_female'));
+      toast.error(t('only_female') || 'Only female users are allowed to sign up.');
       return;
     }
 
     try {
       const userCred = await createUserWithEmailAndPassword(auth, email, pass);
-      console.log(userCred, "userCred")
+
       await setDoc(doc(db, 'users', userCred.user.uid), {
         email,
         gender: gen,
@@ -30,11 +34,27 @@ export default function Signup() {
         enrolledCourse: 'A1',
         createdAt: new Date().toISOString(),
       });
-      console.log("strp")
+
+      toast.success('Signup successful!');
       router.push('/dashboard');
-    } catch (error) {
-      console.error("Signup error:", error);
-      alert(error);
+    } catch (error: any) {
+      let message = 'Signup failed. Please try again.';
+
+      if (error instanceof FirebaseError) {
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            message = 'This email is already registered.';
+            break;
+          case 'auth/weak-password':
+            message = 'Password should be at least 6 characters.';
+            break;
+          case 'auth/invalid-email':
+            message = 'Invalid email address.';
+            break;
+        }
+      }
+
+      toast.error(message);
     }
   };
 
@@ -42,17 +62,44 @@ export default function Signup() {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-      await ensureUserDocumentExists(user);
-      await setDoc(doc(db, 'users', user.uid), {
-        email: user.email,
-        gender: 'female',
-        progress: [],
-        enrolledCourse: 'A1',
-        createdAt: new Date().toISOString(),
-      });
+
+      const userRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const existingData = userSnap.data();
+        if (existingData.gender !== 'female') {
+          toast.error('Only female users are allowed to sign in.');
+          return;
+        }
+      } else {
+        // New user → default to female
+        await setDoc(userRef, {
+          email: user.email,
+          gender: 'female',
+          progress: [],
+          enrolledCourse: 'A1',
+          createdAt: new Date().toISOString(),
+        });
+      }
+
+      toast.success('Login successful!');
       router.push('/dashboard');
     } catch (err: any) {
-      alert(err.message);
+      let message = 'Google sign-in failed. Please try again.';
+
+      if (err instanceof FirebaseError) {
+        switch (err.code) {
+          case 'auth/popup-closed-by-user':
+            message = 'Google sign-in popup was closed.';
+            break;
+          case 'auth/cancelled-popup-request':
+            message = 'Google sign-in was cancelled.';
+            break;
+        }
+      }
+
+      toast.error(message);
     }
   };
 
@@ -81,6 +128,7 @@ export default function Signup() {
       </select>
 
       <button onClick={handleSignup}>{t('signup')}</button>
+
       <button className="button-google" onClick={handleGoogleSignIn}>
         <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google Icon" />
         Continue with Google

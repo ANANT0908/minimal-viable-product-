@@ -4,6 +4,7 @@ import { auth, googleProvider } from '@/lib/firebase';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
 import { ensureUserDocumentExists } from '@/lib/ensureUserDocumentExists';
+import toast from 'react-hot-toast';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -16,18 +17,46 @@ export default function Login() {
       const result = await signInWithEmailAndPassword(auth, email, pass);
       const user = result.user;
       await ensureUserDocumentExists(user);
+      toast.success('Logged in successfully!');
       router.push('/dashboard');
     } catch (err: any) {
-      alert(err.message);
+      let message = 'An unexpected error occurred. Please try again.';
+      if (err) {
+        switch (err.code) {
+          case 'auth/user-not-found':
+            message = 'No account found with this email.';
+            break;
+          case 'auth/wrong-password':
+            message = 'Incorrect password. Please try again.';
+            break;
+          case 'auth/too-many-requests':
+            message = 'Too many attempts. Please wait and try again later.';
+            break;
+          case 'auth/popup-closed-by-user':
+            message = 'Login popup was closed. Please try again.';
+            break;
+          case 'auth/network-request-failed':
+            message = 'Network error. Please check your internet connection.';
+            break;
+          default:
+            message = 'Authentication failed. Please try again.';
+            break;
+        }
+      }
+
+      toast.error(message);
     }
   };
 
   const handleGoogleLogin = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      await ensureUserDocumentExists(user);
+      toast.success('Logged in with Google!');
       router.push('/dashboard');
     } catch (err: any) {
-      alert(err.message);
+      toast.error(err.message || 'Google login failed');
     }
   };
 
@@ -107,5 +136,3 @@ const primaryButtonStyle = {
   cursor: 'pointer',
   marginBottom: '1rem',
 };
-
-
