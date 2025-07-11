@@ -50,12 +50,16 @@
       }
     }
   },
-  "course": {
+ "course": {
     "title": "A1 Deutschkurs",
-    "dashboard": "Kursübersicht",
+  "dashboard": "Kursübersicht",
     "welcome": "Willkommen, {{email}}",
     "watched": "gesehen",
-    "completed": "Abgeschlossen",
-    "mark_complete": "Als abgeschlossen markieren"
+  "completed": "Abgeschlossen",
+  "mark_complete": "Als abgeschlossen markieren",
+  "lessons": {
+    "lesson1": "Zahlen 0–20",
+    "lesson2": "Häufige Redewendungen"
   }
+}
 }

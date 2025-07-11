@@ -172,3 +172,51 @@ iframe {
     font-size: 1.5rem;
   }
 }
+
+@media (min-width: 481px) and (max-width: 768px) {
+  .container {
+    padding: 2.5rem;
+  }
+
+  .card {
+    padding: 2.5rem 2rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  input, select, button {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+
+  .button-google {
+    padding: 1rem;
+  }
+}
+
+
+@media (min-width: 769px) and (max-width: 1200px) {
+  .container {
+    max-width: 500px;
+    padding: 3rem;
+  }
+
+  .card {
+    padding: 3rem 2.5rem;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  input, select, button {
+    font-size: 1.05rem;
+    padding: 1.1rem;
+  }
+
+  .button-google {
+    padding: 1.1rem;
+  }
+}

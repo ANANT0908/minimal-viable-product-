@@ -52,10 +52,14 @@
   },
   "course": {
     "title": "A1 German Course",
-    "dashboard": "Course Dashboard",
+  "dashboard": "Course Dashboard",
     "welcome": "Welcome, {{email}}",
-    "watched": "watched",
-    "completed": "Completed",
-    "mark_complete": "Mark as complete"
+  "watched": "watched",
+  "completed": "Completed",
+  "mark_complete": "Mark as complete",
+  "lessons": {
+    "lesson1": "Numbers 0-20",
+    "lesson2": "Common Phrases"
   }
+}
 }

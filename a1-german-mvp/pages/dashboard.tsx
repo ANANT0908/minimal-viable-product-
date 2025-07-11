@@ -5,19 +5,16 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 interface Video {
   id: string;
-  title: string;
   url: string;
 }
 
 const videos: Video[] = [
   {
     id: 'lesson1',
-    title: 'Numbers 0-20',
     url: 'https://www.youtube.com/watch?v=d54ioeKA-jc&t=77s',
   },
   {
     id: 'lesson2',
-    title: 'Common Phrases',
     url: 'https://www.youtube.com/watch?v=S8ukFF6SdGk&t=406s',
   },
 ];
@@ -163,25 +160,24 @@ const Dashboard: React.FC = () => {
   };
 
   const markAsComplete = async (videoId: string) => {
-  if (!userId) return;
+    if (!userId) return;
 
-  const current = completedMap[videoId] ?? false;
-  const updatedValue = !current;
+    const current = completedMap[videoId] ?? false;
+    const updatedValue = !current;
 
-  try {
-    await updateDoc(doc(db, 'users', userId), {
-      [`completed.${videoId}`]: updatedValue,
-    });
+    try {
+      await updateDoc(doc(db, 'users', userId), {
+        [`completed.${videoId}`]: updatedValue,
+      });
 
-    setCompletedMap((prev) => ({
-      ...prev,
-      [videoId]: updatedValue,
-    }));
-  } catch (error) {
-    console.error('Failed to toggle completion status:', error);
-  }
-};
-
+      setCompletedMap((prev) => ({
+        ...prev,
+        [videoId]: updatedValue,
+      }));
+    } catch (error) {
+      console.error('Failed to toggle completion status:', error);
+    }
+  };
 
   useEffect(() => {
     return () => {
@@ -224,9 +220,9 @@ const Dashboard: React.FC = () => {
               alignItems: 'center',
             }}
           >
-            <strong style={{ fontSize: '1.1rem' }}>{video.title}</strong>
+            <strong style={{ fontSize: '1.1rem' }}>{t(`course.lessons.${video.id}`)}</strong>
             <span style={{ fontSize: '0.95rem', color: '#4b5563' }}>
-              {progressMap[video.id] || 0}% watched {completedMap[video.id] && '✅'}
+              {progressMap[video.id] || 0}% {t('course.watched')} {completedMap[video.id] && '✅'}
             </span>
           </div>
 
@@ -270,7 +266,7 @@ const Dashboard: React.FC = () => {
                   fontWeight: 500,
                 }}
               >
-                {completedMap[video.id] ? `✅ ${t('completed')}` : t('course.mark_complete')}
+                {completedMap[video.id] ? `✅ ${t('course.completed')}` : t('course.mark_complete')}
               </button>
             </div>
           )}

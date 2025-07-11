@@ -84,7 +84,6 @@ export default function Signup() {
       toast.success(t('auth.login.success'));
       router.push('/dashboard');
     } catch (err: any) {
-      console.log(err,"err")
       let message = t('auth.signup.error.google');
 
       if (err) {

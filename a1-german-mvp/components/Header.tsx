@@ -46,30 +46,64 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
         height: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        gap: 3,
         bgcolor: '#f9fafb',
       }}
     >
       <AppBar position="static" color="default" elevation={1}>
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <Typography variant="h6" fontWeight={600}>
+        <Toolbar
+          sx={{
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            justifyContent: 'space-between',
+            gap: { xs: 1, sm: 0 },
+            px: { xs: 2, sm: 3, md: 4 },
+            py: { xs: 1, sm: 2 },
+          }}
+        >
+          <Typography
+            variant="h6"
+            fontWeight={600}
+            sx={{
+              fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
+              mb: { xs: 1, sm: 0 },
+            }}
+          >
             🚀 {t('course.title')}
           </Typography>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: { xs: 'flex-start', sm: 'center' },
+              gap: { xs: 1, sm: 2 },
+              width: { xs: '100%', sm: 'auto' },
+            }}
+          >
             <Select
               value={i18n.language}
               onChange={(e) => changeLanguage(e.target.value)}
               variant="outlined"
               size="small"
-              sx={{ minWidth: 130, bgcolor: '#fff', borderRadius: 1 }}
+              sx={{
+                minWidth: { xs: '100%', sm: 130 },
+                bgcolor: '#fff',
+                borderRadius: 1,
+              }}
             >
               <MenuItem value="en">🇺🇸 {t('common.english')}</MenuItem>
               <MenuItem value="de">🇩🇪 {t('common.german')}</MenuItem>
             </Select>
 
             {userEmail && (
-              <Typography variant="body2" sx={{ color: '#4b5563' }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: '#4b5563',
+                  fontSize: { xs: '0.85rem', sm: '0.95rem' },
+                  whiteSpace: 'nowrap',
+                }}
+              >
                 {t('course.welcome', { email: userEmail })}
               </Typography>
             )}
@@ -86,10 +120,9 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'flex-start',
-          p: 4,
+          px: { xs: 2, sm: 4, md: 6 },
+          pt: { xs: 2, sm: 3 },
           overflowY: 'auto',
-          margin: 0,
-          padding: 0,
         }}
       >
         {children}
