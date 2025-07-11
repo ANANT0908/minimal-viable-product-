@@ -106,6 +106,7 @@ export default function Signup() {
     <Box
       sx={{
         width: '40%',
+        minWidth:350,
         mx: 'auto',
         mt: 6,
         p: 4,

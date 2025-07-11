@@ -185,7 +185,7 @@ const Dashboard = () => {
   }, [expandedVideoId, progressMap]);
 
   return (
-    <Box sx={{ p: 4, width:'60%', mx: 'auto', color: 'text.primary' }}>
+    <Box sx={{ p: 4, width:'60%',  minWidth:400, mx: 'auto', color: 'text.primary' }}>
       <Typography variant="h4" align="center" mb={4}>
         📚 {t('course.dashboard')}
       </Typography>
