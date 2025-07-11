@@ -5,7 +5,7 @@ import {
   signInWithPopup,
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { auth, db, googleProvider } from '@/lib/firebase';
+import { auth, db, googleProvider } from '@/src/lib/firebase';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import toast from 'react-hot-toast';

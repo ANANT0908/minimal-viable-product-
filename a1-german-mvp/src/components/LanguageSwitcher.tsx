@@ -1,8 +1,10 @@
+'use client';
 import React from 'react';
 import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth } from '@/src/lib/firebase';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 
 const LogoutButton: React.FC = () => {
   const router = useRouter();
@@ -13,10 +15,9 @@ const LogoutButton: React.FC = () => {
       await signOut(auth);
       router.push('/');
     } catch (error: any) {
-      alert(t('logout_failed') + ': ' + error.message);
+      toast.error(`${t('logout_failed')}: ${error.message}`);
     }
   };
-
   return (
     <button
       onClick={handleLogout}
@@ -32,10 +33,11 @@ const LogoutButton: React.FC = () => {
         transition: 'all 0.3s ease',
       }}
       onMouseOver={(e) => {
-        (e.currentTarget.style.background = '#c62828');
+        e.currentTarget.style.background = '#c62828';
       }}
       onMouseOut={(e) => {
-        (e.currentTarget.style.background = 'linear-gradient(135deg, #f44336, #d32f2f)');
+        e.currentTarget.style.background =
+          'linear-gradient(135deg, #f44336, #d32f2f)';
       }}
     >
       {t('logout')}

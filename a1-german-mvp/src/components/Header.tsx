@@ -10,7 +10,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { useTranslation } from 'react-i18next';
 import i18next from 'i18next';
 import LogoutButton from './LogoutButton';
-import { auth } from '@/lib/firebase';
+import { auth } from '@/src/lib/firebase';
 import toast from 'react-hot-toast';
 
 interface HeaderProps {

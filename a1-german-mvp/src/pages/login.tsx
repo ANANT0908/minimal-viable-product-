@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from '@/lib/firebase';
+import { auth, googleProvider } from '@/src/lib/firebase';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
-import { ensureUserDocumentExists } from '@/lib/ensureUserDocumentExists';
+import { ensureUserDocumentExists } from '@/src/lib/ensureUserDocumentExists';
 import toast from 'react-hot-toast';
 
 export default function Login() {

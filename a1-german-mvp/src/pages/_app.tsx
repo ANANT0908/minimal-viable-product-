@@ -1,7 +1,7 @@
-import '@/styles/globals.css';
+import '../styles/globals.css';
 import type { AppProps } from 'next/app';
-import '@/lib/i18n'; 
-import Header from '@/components/Header';
+import '@/src/lib/i18n'; 
+import Header from '@/src/components/Header';
 import { Toaster } from 'react-hot-toast';
 
 
