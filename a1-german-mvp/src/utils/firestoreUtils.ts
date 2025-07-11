@@ -1,4 +1,4 @@
-import { db } from '../src/lib/firebase';
+import { db } from '../lib/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 
 export const saveVideoProgress = async (

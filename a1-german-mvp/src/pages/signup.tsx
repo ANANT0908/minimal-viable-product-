@@ -9,7 +9,6 @@ import { auth, db, googleProvider } from '@/src/lib/firebase';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
-import { FirebaseError } from 'firebase/app';
 
 export default function Signup() {
   const [email, setEmail] = useState('');
@@ -37,10 +36,10 @@ export default function Signup() {
 
       toast.success(t('auth.signup.success'));
       router.push('/dashboard');
-    } catch (error: any) {
+    } 
+    catch (error: any) {
       let message = t('auth.signup.error.default');
-
-      if (error instanceof FirebaseError) {
+      if (error?.code) {
         switch (error.code) {
           case 'auth/email-already-in-use':
             message = t('auth.signup.error.email_in_use');
@@ -87,7 +86,7 @@ export default function Signup() {
     } catch (err: any) {
       let message = t('auth.signup.error.google');
 
-      if (err instanceof FirebaseError) {
+      if (err) {
         switch (err.code) {
           case 'auth/popup-closed-by-user':
             message = t('auth.signup.error.popup_closed');
