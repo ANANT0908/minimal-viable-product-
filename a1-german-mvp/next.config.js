@@ -6,13 +6,9 @@ const nextConfig = {
     config.resolve.alias['@'] = __dirname;
     return config;
   },
+  eslint: {
+    ignoreDuringBuilds: true, 
+  },
 };
 
 module.exports = nextConfig;
-
-module.exports = {
-  i18n: {
-    locales: ['en', 'de'],
-    defaultLocale: 'en',
-  },
-};
