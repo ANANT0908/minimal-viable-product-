@@ -196,7 +196,7 @@ const Dashboard = () => {
   }, [expandedVideoId, progressMap]);
 
   return (
-    <Box sx={{ p: 4, width:'60%',  minWidth:400, mx: 'auto', color: 'text.primary' }}>
+    <Box sx={{ p: 4, width: '60%', minWidth: 400, mx: 'auto', color: 'text.primary' }}>
       <Typography variant="h4" align="center" mb={4}>
         📚 {t('course.dashboard')}
       </Typography>
@@ -215,12 +215,15 @@ const Dashboard = () => {
             <Typography fontWeight="bold" fontSize="1.1rem">
               {t(`course.lessons.${video.id}`)}
             </Typography>
+
             <Typography fontSize="0.95rem" color="text.secondary">
               {progressMap[video.id] || 0}% {t('course.watched')}{' '}
               {completedMap[video.id] && '✅'}
             </Typography>
           </Box>
-
+          <Typography mt={1} color="text.secondary" fontSize="0.95rem">
+            {t(`course.lessons.${video.id}_desc`)}
+          </Typography>
           {expandedVideoId === video.id && (
             <Box mt={2}>
               <Box

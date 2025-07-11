@@ -73,8 +73,10 @@
     "completed": "Abgeschlossen",
     "mark_complete": "Als abgeschlossen markieren",
     "lessons": {
-      "lesson1": "Zahlen 0–20",
-      "lesson2": "Häufige Redewendungen"
+      "lesson1": "Zählen von 0 bis 20",
+      "lesson1_desc": "Lerne, Zahlen von 0 bis 20 mit visueller und mündlicher Übung zu zählen.",
+      "lesson2": "Gängige Redewendungen",
+      "lesson2_desc": "Verstehe und sprich alltägliche Redewendungen für einfache Gespräche."
     }
   }
 }
