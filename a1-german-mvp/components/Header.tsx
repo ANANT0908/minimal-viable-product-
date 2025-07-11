@@ -1,12 +1,16 @@
 'use client';
-import React, { useEffect, useState, ReactNode } from 'react';
+
+import React, { useEffect, useState, useCallback, ReactNode } from 'react';
 import { useRouter } from 'next/router';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
+} from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import i18next from 'i18next';
 import LogoutButton from './LogoutButton';
@@ -17,11 +21,16 @@ interface HeaderProps {
   children: ReactNode;
 }
 
+const LANGUAGE_OPTIONS = [
+  { code: 'en', label: '🇺🇸 English' },
+  { code: 'de', label: '🇩🇪 Deutsch' },
+];
+
 const Header: React.FC<HeaderProps> = ({ children }) => {
   const { i18n, t } = useTranslation();
   const router = useRouter();
-  const isDashboard = router.pathname === '/dashboard';
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const isDashboard = router.pathname === '/dashboard';
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -30,14 +39,17 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  const changeLanguage = async (lng: string) => {
-    try {
-      await i18next.changeLanguage(lng);
-      router.replace(router.pathname, router.asPath, { locale: lng });
-    } catch (err) {
-      toast.error(t('error.language_switch') || 'Language change failed.');
-    }
-  };
+  const changeLanguage = useCallback(
+    async (lng: string) => {
+      try {
+        await i18next.changeLanguage(lng);
+        router.replace(router.pathname, router.asPath, { locale: lng });
+      } catch {
+        toast.error(t('error.language_switch') || 'Failed to change language.');
+      }
+    },
+    [router, t]
+  );
 
   return (
     <Box
@@ -55,9 +67,9 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
             flexDirection: { xs: 'column', sm: 'row' },
             alignItems: { xs: 'flex-start', sm: 'center' },
             justifyContent: 'space-between',
-            gap: { xs: 1, sm: 0 },
             px: { xs: 2, sm: 3, md: 4 },
             py: { xs: 1, sm: 2 },
+            gap: { xs: 1, sm: 0 },
           }}
         >
           <Typography
@@ -82,17 +94,20 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
           >
             <Select
               value={i18n.language}
-              onChange={(e) => changeLanguage(e.target.value)}
+              onChange={(e: SelectChangeEvent) => changeLanguage(e.target.value)}
               variant="outlined"
               size="small"
               sx={{
-                minWidth: { xs: '100%', sm: 130 },
+                minWidth: { xs: '100%', sm: 140 },
                 bgcolor: '#fff',
                 borderRadius: 1,
               }}
             >
-              <MenuItem value="en">🇺🇸 {t('common.english')}</MenuItem>
-              <MenuItem value="de">🇩🇪 {t('common.german')}</MenuItem>
+              {LANGUAGE_OPTIONS.map((lang) => (
+                <MenuItem key={lang.code} value={lang.code}>
+                  {lang.label}
+                </MenuItem>
+              ))}
             </Select>
 
             {userEmail && (
@@ -112,21 +127,7 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
           </Box>
         </Toolbar>
       </AppBar>
-
-      <Box
-        component="main"
-        sx={{
-          flex: 1,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          px: { xs: 2, sm: 4, md: 6 },
-          pt: { xs: 2, sm: 3 },
-          overflowY: 'auto',
-        }}
-      >
         {children}
-      </Box>
     </Box>
   );
 };

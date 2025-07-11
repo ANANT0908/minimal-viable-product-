@@ -1,7 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
+'use client';
+
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { auth, db } from '../lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+
+import {
+  Box,
+  Typography,
+  Button,
+  Paper,
+  Stack,
+} from '@mui/material';
 
 interface Video {
   id: string;
@@ -9,14 +19,8 @@ interface Video {
 }
 
 const videos: Video[] = [
-  {
-    id: 'lesson1',
-    url: 'https://www.youtube.com/watch?v=d54ioeKA-jc&t=77s',
-  },
-  {
-    id: 'lesson2',
-    url: 'https://www.youtube.com/watch?v=S8ukFF6SdGk&t=406s',
-  },
+  { id: 'lesson1', url: 'https://www.youtube.com/watch?v=d54ioeKA-jc&t=77s' },
+  { id: 'lesson2', url: 'https://www.youtube.com/watch?v=S8ukFF6SdGk&t=406s' },
 ];
 
 declare global {
@@ -28,17 +32,19 @@ declare global {
 
 const getVideoId = (url: string): string => {
   const match = url.match(/v=([^&]+)/);
-  return match ? match[1] : '';
+  return match?.[1] || '';
 };
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation('common');
+
+  const [userId, setUserId] = useState<string | null>(null);
   const [expandedVideoId, setExpandedVideoId] = useState<string | null>(null);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
   const [completedMap, setCompletedMap] = useState<Record<string, boolean>>({});
-  const [userId, setUserId] = useState<string | null>(null);
+
   const players = useRef<Record<string, any>>({});
-  const trackingIntervals = useRef<Record<string, any>>({});
+  const trackingIntervals = useRef<Record<string, ReturnType<typeof setInterval>>>({});
 
   useEffect(() => {
     if (!document.getElementById('youtube-api')) {
@@ -70,6 +76,68 @@ const Dashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    return () => {
+      Object.values(players.current).forEach((player) => player?.destroy?.());
+      Object.values(trackingIntervals.current).forEach(clearInterval);
+    };
+  }, []);
+
+  const toggleVideo = useCallback((id: string) => {
+    if (expandedVideoId && players.current[expandedVideoId]) {
+      stopTracking(expandedVideoId);
+      players.current[expandedVideoId].destroy?.();
+      delete players.current[expandedVideoId];
+    }
+    setExpandedVideoId((prev) => (prev === id ? null : id));
+  }, [expandedVideoId]);
+
+  const startTracking = (videoId: string, player: any) => {
+    if (trackingIntervals.current[videoId]) return;
+
+    const interval = setInterval(() => {
+      const duration = player.getDuration?.();
+      const currentTime = player.getCurrentTime?.();
+      if (!duration || !currentTime || isNaN(duration) || isNaN(currentTime)) return;
+
+      const percent = Math.floor((currentTime / duration) * 100);
+      setProgressMap((prev) => ({ ...prev, [videoId]: percent }));
+
+      if (userId && percent > (progressMap[videoId] || 0)) {
+        updateDoc(doc(db, 'users', userId), {
+          [`progress.${videoId}`]: percent,
+        });
+      }
+
+      if (percent >= 100) stopTracking(videoId);
+    }, 3000);
+
+    trackingIntervals.current[videoId] = interval;
+  };
+
+  const stopTracking = (videoId: string) => {
+    clearInterval(trackingIntervals.current[videoId]);
+    delete trackingIntervals.current[videoId];
+  };
+
+  const markAsComplete = async (videoId: string) => {
+    if (!userId) return;
+    const updatedValue = !completedMap[videoId];
+
+    try {
+      await updateDoc(doc(db, 'users', userId), {
+        [`completed.${videoId}`]: updatedValue,
+      });
+
+      setCompletedMap((prev) => ({
+        ...prev,
+        [videoId]: updatedValue,
+      }));
+    } catch (err) {
+      console.error('Error updating completion:', err);
+    }
+  };
+
+  useEffect(() => {
     if (!expandedVideoId) return;
 
     const video = videos.find((v) => v.id === expandedVideoId);
@@ -83,30 +151,23 @@ const Dashboard: React.FC = () => {
         const player = new window.YT.Player(iframeId, {
           events: {
             onReady: () => {
-              const trySeek = setInterval(() => {
+              const seek = setInterval(() => {
                 const duration = player.getDuration?.();
                 if (duration && !isNaN(duration)) {
                   const seekTime = Math.floor((progressPercent / 100) * duration);
-                  if (seekTime > 0) {
-                    player.seekTo(seekTime, true);
-                  }
-                  clearInterval(trySeek);
+                  if (seekTime > 0) player.seekTo(seekTime, true);
+                  clearInterval(seek);
                 }
               }, 300);
             },
             onStateChange: (event: any) => {
-              if (event.data === window.YT.PlayerState.PLAYING) {
-                startTracking(video.id, player);
-              }
-              if (event.data === window.YT.PlayerState.ENDED) {
-                stopTracking(video.id);
-              }
+              if (event.data === window.YT.PlayerState.PLAYING) startTracking(video.id, player);
+              if (event.data === window.YT.PlayerState.ENDED) stopTracking(video.id);
             },
           },
         });
-        if (expandedVideoId === video.id) {
-          players.current[video.id] = player;
-        }
+
+        players.current[video.id] = player;
       } else {
         setTimeout(initPlayer, 500);
       }
@@ -115,126 +176,41 @@ const Dashboard: React.FC = () => {
     initPlayer();
   }, [expandedVideoId, progressMap]);
 
-  const startTracking = (videoId: string, player: any) => {
-    if (trackingIntervals.current[videoId]) return;
-
-    const interval = setInterval(() => {
-      const duration = player.getDuration?.();
-      const currentTime = player.getCurrentTime?.();
-      if (!duration || !currentTime || isNaN(duration) || isNaN(currentTime)) return;
-
-      const percent = Math.floor((currentTime / duration) * 100);
-
-      setProgressMap((prev) => ({
-        ...prev,
-        [videoId]: percent,
-      }));
-
-      if (userId && percent > (progressMap[videoId] || 0)) {
-        updateDoc(doc(db, 'users', userId), {
-          [`progress.${videoId}`]: percent,
-        });
-      }
-
-      if (percent >= 100) {
-        stopTracking(videoId);
-      }
-    }, 3000);
-
-    trackingIntervals.current[videoId] = interval;
-  };
-
-  const stopTracking = (videoId: string) => {
-    clearInterval(trackingIntervals.current[videoId]);
-    delete trackingIntervals.current[videoId];
-  };
-
-  const toggleVideo = (id: string) => {
-    if (expandedVideoId && players.current[expandedVideoId]) {
-      stopTracking(expandedVideoId);
-      players.current[expandedVideoId].destroy?.();
-      delete players.current[expandedVideoId];
-    }
-
-    setExpandedVideoId((prev) => (prev === id ? null : id));
-  };
-
-  const markAsComplete = async (videoId: string) => {
-    if (!userId) return;
-
-    const current = completedMap[videoId] ?? false;
-    const updatedValue = !current;
-
-    try {
-      await updateDoc(doc(db, 'users', userId), {
-        [`completed.${videoId}`]: updatedValue,
-      });
-
-      setCompletedMap((prev) => ({
-        ...prev,
-        [videoId]: updatedValue,
-      }));
-    } catch (error) {
-      console.error('Failed to toggle completion status:', error);
-    }
-  };
-
-  useEffect(() => {
-    return () => {
-      Object.values(players.current).forEach((player) => player.destroy?.());
-      Object.values(trackingIntervals.current).forEach(clearInterval);
-    };
-  }, []);
-
   return (
-    <div
-      style={{
-        padding: '2rem',
-        width: '800px',
-        margin: 'auto',
-        fontFamily: 'Segoe UI, sans-serif',
-        color: '#1f2937',
-      }}
-    >
-      <h2 style={{ fontSize: '2rem', marginBottom: '2rem', textAlign: 'center' }}>
+    <Box sx={{ p: 4, maxWidth: 800, mx: 'auto', color: 'text.primary' }}>
+      <Typography variant="h4" align="center" mb={4}>
         📚 {t('course.dashboard')}
-      </h2>
+      </Typography>
 
       {videos.map((video) => (
-        <div
-          key={video.id}
-          style={{
-            marginBottom: '2rem',
-            backgroundColor: '#ffffff',
-            borderRadius: '0.75rem',
-            boxShadow: '0 8px 20px rgba(0,0,0,0.05)',
-            padding: '1rem 1.5rem',
-          }}
-        >
-          <div
+        <Paper key={video.id} elevation={3} sx={{ mb: 4, p: 3, borderRadius: 3 }}>
+          <Box
             onClick={() => toggleVideo(video.id)}
-            style={{
-              cursor: 'pointer',
+            sx={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
+              cursor: 'pointer',
             }}
           >
-            <strong style={{ fontSize: '1.1rem' }}>{t(`course.lessons.${video.id}`)}</strong>
-            <span style={{ fontSize: '0.95rem', color: '#4b5563' }}>
-              {progressMap[video.id] || 0}% {t('course.watched')} {completedMap[video.id] && '✅'}
-            </span>
-          </div>
+            <Typography fontWeight="bold" fontSize="1.1rem">
+              {t(`course.lessons.${video.id}`)}
+            </Typography>
+            <Typography fontSize="0.95rem" color="text.secondary">
+              {progressMap[video.id] || 0}% {t('course.watched')}{' '}
+              {completedMap[video.id] && '✅'}
+            </Typography>
+          </Box>
 
           {expandedVideoId === video.id && (
-            <div style={{ marginTop: '1rem' }}>
-              <div
-                style={{
+            <Box mt={2}>
+              <Box
+                sx={{
                   position: 'relative',
                   paddingBottom: '56.25%',
                   height: 0,
                   overflow: 'hidden',
-                  borderRadius: '0.5rem',
+                  borderRadius: 2,
                 }}
               >
                 <iframe
@@ -250,29 +226,27 @@ const Dashboard: React.FC = () => {
                   }}
                   allow="autoplay; encrypted-media"
                   allowFullScreen
-                ></iframe>
-              </div>
+                />
+              </Box>
 
-              <button
+              <Button
                 onClick={() => markAsComplete(video.id)}
-                style={{
-                  marginTop: '1rem',
-                  padding: '0.6rem 1.25rem',
-                  backgroundColor: completedMap[video.id] ? '#16a34a' : '#3b82f6',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  fontSize: '1rem',
-                  fontWeight: 500,
+                variant="contained"
+                fullWidth
+                sx={{
+                  mt: 2,
+                  backgroundColor: completedMap[video.id] ? 'success.main' : 'primary.main',
                 }}
               >
-                {completedMap[video.id] ? `✅ ${t('course.completed')}` : t('course.mark_complete')}
-              </button>
-            </div>
+                {completedMap[video.id]
+                  ? `✅ ${t('course.completed')}`
+                  : t('course.mark_complete')}
+              </Button>
+            </Box>
           )}
-        </div>
+        </Paper>
       ))}
-    </div>
+    </Box>
   );
 };
 

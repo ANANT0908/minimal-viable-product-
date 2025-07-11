@@ -7,6 +7,14 @@ import { ensureUserDocumentExists } from '@/lib/ensureUserDocumentExists';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Stack,
+} from '@mui/material';
+
 export default function Login() {
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
@@ -43,72 +51,82 @@ export default function Login() {
   };
 
   return (
-    <div style={containerStyle}>
-      <h2>{t('auth.login.title')}</h2>
-      <input
-        type="email"
-        placeholder={t('common.email')}
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        style={inputStyle}
-      />
-      <input
-        type="password"
-        placeholder={t('common.password')}
-        value={pass}
-        onChange={(e) => setPass(e.target.value)}
-        style={inputStyle}
-      />
-      <button onClick={handleLogin} style={primaryButtonStyle}>
-        {t('auth.login.button')}
-      </button>
+    <Box
+      sx={{
+        maxWidth: 400,
+        mx: 'auto',
+        mt: 6,
+        p: 4,
+        backgroundColor: 'background.paper',
+        borderRadius: 3,
+        boxShadow: 3,
+        textAlign: 'center',
+      }}
+    >
+      <Typography variant="h5" mb={3}>
+        {t('auth.login.title')}
+      </Typography>
 
-      <button className="button-google" onClick={handleGoogleLogin}>
-        <img
-          src="https://www.svgrepo.com/show/475656/google-color.svg"
-          alt="Google Icon"
-          width={20}
-          style={{ marginRight: 8 }}
+      <Stack spacing={2}>
+        <TextField
+          type="email"
+          label={t('common.email')}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          fullWidth
         />
-        {t('auth.login.google')}
-      </button>
 
-      <p style={{ marginTop: '1rem' }}>
+        <TextField
+          type="password"
+          label={t('common.password')}
+          value={pass}
+          onChange={(e) => setPass(e.target.value)}
+          fullWidth
+        />
+
+        <Button
+          variant="contained"
+          onClick={handleLogin}
+          fullWidth
+          sx={{ py: 1.5 }}
+        >
+          {t('auth.login.button')}
+        </Button>
+
+        <Button
+          onClick={handleGoogleLogin}
+          fullWidth
+          sx={{
+            py: 1.5,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '1px solid #d1d5db',
+            backgroundColor: '#fff',
+            color: '#000',
+            '&:hover': {
+              backgroundColor: '#f5f5f5',
+            },
+          }}
+        >
+          <img
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            alt="Google Icon"
+            width={20}
+            style={{ marginRight: 8 }}
+          />
+          {t('auth.login.google')}
+        </Button>
+      </Stack>
+
+      <Typography mt={3}>
         {t('auth.login.no_account')}{' '}
-        <Link href={`/${i18n.language}/signup`}>{t('auth.signup.title')}</Link>
-      </p>
-    </div>
+        <Link href={`/${i18n.language}/signup`}>
+          <Typography component="span" color="primary" fontWeight="bold">
+            {t('auth.signup.title')}
+          </Typography>
+        </Link>
+      </Typography>
+    </Box>
   );
 }
-
-const containerStyle = {
-  maxWidth: '400px',
-  margin: '5rem auto',
-  padding: '2rem',
-  backgroundColor: '#ffffff',
-  borderRadius: '12px',
-  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-  textAlign: 'center' as const,
-};
-
-const inputStyle = {
-  width: '100%',
-  padding: '0.75rem',
-  borderRadius: '8px',
-  border: '1px solid #d1d5db',
-  marginBottom: '1rem',
-  fontSize: '1rem',
-  boxSizing: 'border-box' as const,
-};
-
-const primaryButtonStyle = {
-  width: '100%',
-  padding: '0.75rem',
-  backgroundColor: '#3b82f6',
-  color: '#fff',
-  border: 'none',
-  borderRadius: '8px',
-  fontSize: '1rem',
-  cursor: 'pointer',
-  marginBottom: '1rem',
-};

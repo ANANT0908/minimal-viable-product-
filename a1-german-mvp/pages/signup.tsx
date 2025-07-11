@@ -10,6 +10,18 @@ import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 
+import {
+  Box,
+  TextField,
+  Select,
+  MenuItem,
+  Button,
+  Typography,
+  Stack,
+  InputLabel,
+  FormControl,
+} from '@mui/material';
+
 export default function Signup() {
   const [email, setEmail] = useState('');
   const [pass, setPass] = useState('');
@@ -81,80 +93,95 @@ export default function Signup() {
   };
 
   return (
-    <div style={containerStyle}>
-      <h2>{t('auth.signup.title')}</h2>
-
-      <input
-        type="email"
-        placeholder={t('common.email')}
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        style={inputStyle}
-      />
-
-      <input
-        type="password"
-        placeholder={t('common.password')}
-        value={pass}
-        onChange={(e) => setPass(e.target.value)}
-        style={inputStyle}
-      />
-
-      <select value={gen} onChange={(e) => setGen(e.target.value)} style={inputStyle}>
-        <option value="">{t('common.gender')}</option>
-        <option value="female">{t('common.female')}</option>
-        <option value="male">{t('common.male')}</option>
-      </select>
-
-      <button onClick={handleSignup} style={primaryButtonStyle}>
+    <Box
+      sx={{
+        maxWidth: 400,
+        mx: 'auto',
+        mt: 6,
+        p: 4,
+        backgroundColor: 'background.paper',
+        borderRadius: 3,
+        boxShadow: 3,
+        textAlign: 'center',
+      }}
+    >
+      <Typography variant="h5" mb={3}>
         {t('auth.signup.title')}
-      </button>
+      </Typography>
 
-      <button className="button-google" onClick={handleGoogleSignIn}>
-        <img
-          src="https://www.svgrepo.com/show/475656/google-color.svg"
-          alt="Google Icon"
-          width={20}
-          style={{ marginRight: 8 }}
+      <Stack spacing={2}>
+        <TextField
+          type="email"
+          label={t('common.email')}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          fullWidth
         />
-        {t('auth.login.google')}
-      </button>
 
-      <p style={{ marginTop: '1rem' }}>
+        <TextField
+          type="password"
+          label={t('common.password')}
+          value={pass}
+          onChange={(e) => setPass(e.target.value)}
+          fullWidth
+        />
+
+        <FormControl fullWidth>
+          <InputLabel>{t('common.gender')}</InputLabel>
+          <Select
+            value={gen}
+            onChange={(e) => setGen(e.target.value)}
+            label={t('common.gender')}
+          >
+            <MenuItem value="">{t('common.gender')}</MenuItem>
+            <MenuItem value="female">{t('common.female')}</MenuItem>
+            <MenuItem value="male">{t('common.male')}</MenuItem>
+          </Select>
+        </FormControl>
+
+        <Button
+          variant="contained"
+          onClick={handleSignup}
+          fullWidth
+          sx={{ py: 1.5 }}
+        >
+          {t('auth.signup.title')}
+        </Button>
+
+        <Button
+          onClick={handleGoogleSignIn}
+          fullWidth
+          sx={{
+            py: 1.5,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            border: '1px solid #d1d5db',
+            backgroundColor: '#fff',
+            color: '#000',
+            '&:hover': {
+              backgroundColor: '#f5f5f5',
+            },
+          }}
+        >
+          <img
+            src="https://www.svgrepo.com/show/475656/google-color.svg"
+            alt="Google Icon"
+            width={20}
+            style={{ marginRight: 8 }}
+          />
+          {t('auth.login.google')}
+        </Button>
+      </Stack>
+
+      <Typography mt={3}>
         {t('auth.signup.already_have_account')}{' '}
-        <Link href={`/${i18n.language}/login`}>{t('auth.login.title')}</Link>
-      </p>
-    </div>
+        <Link href={`/${i18n.language}/login`}>
+          <Typography component="span" color="primary" fontWeight="bold">
+            {t('auth.login.title')}
+          </Typography>
+        </Link>
+      </Typography>
+    </Box>
   );
 }
-
-const containerStyle = {
-  maxWidth: '400px',
-  margin: '5rem auto',
-  padding: '2rem',
-  backgroundColor: '#ffffff',
-  borderRadius: '12px',
-  boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-  textAlign: 'center' as const,
-};
-
-const inputStyle = {
-  width: '100%',
-  padding: '0.75rem',
-  borderRadius: '8px',
-  border: '1px solid #d1d5db',
-  marginBottom: '1rem',
-  fontSize: '1rem',
-};
-
-const primaryButtonStyle = {
-  width: '100%',
-  padding: '0.75rem',
-  backgroundColor: '#10b981',
-  color: '#fff',
-  border: 'none',
-  borderRadius: '8px',
-  fontSize: '1rem',
-  cursor: 'pointer',
-  marginBottom: '1rem',
-};
