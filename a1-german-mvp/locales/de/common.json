@@ -53,7 +53,8 @@
         "google": "Google-Registrierung fehlgeschlagen. Bitte versuche es erneut.",
         "popup_closed": "Google-Registrierungspopup wurde geschlossen.",
         "popup_cancelled": "Google-Registrierung wurde abgebrochen.",
-        "required_fields": "Bitte fülle alle Pflichtfelder aus."
+        "required_fields": "Bitte fülle alle Pflichtfelder aus.",
+        "google_not_signed_up": "Bitte registriere dich zuerst, bevor du dich mit Google anmeldest."
       },
       "validation": {
         "email_required": "E-Mail ist erforderlich.",

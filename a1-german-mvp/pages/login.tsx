@@ -17,9 +17,13 @@ import {
   Stack,
   CircularProgress,
 } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { InputAdornment, IconButton } from '@mui/material';
+
 
 export default function Login() {
   const [email, setEmail] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [pass, setPass] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -68,12 +72,18 @@ export default function Login() {
       const userRef = doc(db, 'users', result.user.uid);
       const userSnap = await getDoc(userRef);
 
-      if (userSnap.exists()) {
-        const data = userSnap.data();
-        if (data.gender !== 'female') {
-          toast.error('🚫 ' + t('auth.signup.only_female'));
-          return;
-        }
+      if (!userSnap.exists()) {
+        await auth.signOut();
+        toast.error(t('auth.signup.error.google_not_signed_up'));
+        return;
+      }
+
+      const data = userSnap.data();
+      if (data.gender !== 'female') {
+        await auth.signOut();
+
+        toast.error('🚫 ' + t('auth.signup.only_female'));
+        return;
       }
 
       toast.success('✅ ' + t('auth.login.success'));
@@ -88,6 +98,7 @@ export default function Login() {
       setGoogleLoading(false);
     }
   };
+
 
   const handleKey = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleLogin();
@@ -121,23 +132,33 @@ export default function Login() {
         </Typography>
 
         <Stack spacing={2}>
-            <TextField
-              type="email"
-              label={t('common.email')}
-              value={email}
-              inputRef={inputRef}
-              onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={handleKey}
-              fullWidth
-            />
-            <TextField
-              type="password"
-              label={t('common.password')}
-              value={pass}
-              onChange={(e) => setPass(e.target.value)}
-              onKeyDown={handleKey}
-              fullWidth
-            />
+          <TextField
+            type="email"
+            label={t('common.email')}
+            value={email}
+            inputRef={inputRef}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={handleKey}
+            fullWidth
+          />
+          <TextField
+            type={showPassword ? 'text' : 'password'}
+            label={t('common.password')}
+            value={pass}
+            onChange={(e) => setPass(e.target.value)}
+            onKeyDown={handleKey}
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+
 
           <Button
             variant="contained"

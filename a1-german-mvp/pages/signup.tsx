@@ -8,6 +8,9 @@ import { auth, db, googleProvider } from '@/lib/firebase';
 import { useTranslation } from 'react-i18next';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { InputAdornment, IconButton } from '@mui/material';
+
 
 import {
   Box,
@@ -26,6 +29,7 @@ import {
 
 export default function Signup() {
   const [email, setEmail] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [pass, setPass] = useState('');
   const [gen, setGen] = useState('');
   const [loading, setLoading] = useState(false);
@@ -152,25 +156,36 @@ export default function Signup() {
         </Typography>
 
         <Stack spacing={2}>
-            <TextField
-              type="email"
-              label={t('common.email')}
-              value={email}
-              inputRef={inputRef}
-              onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={handleKey}
-              fullWidth
-            />
+          <TextField
+            type="email"
+            label={t('common.email')}
+            value={email}
+            inputRef={inputRef}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyDown={handleKey}
+            fullWidth
+          />
 
-            <TextField
-              type="password"
-              label={t('common.password')}
-              value={pass}
-              onChange={(e) => setPass(e.target.value)}
-              onKeyDown={handleKey}
-              fullWidth
-            />
-
+          <TextField
+            type={showPassword ? 'text' : 'password'}
+            label={t('common.password')}
+            value={pass}
+            onChange={(e) => setPass(e.target.value)}
+            onKeyDown={handleKey}
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
           <FormControl fullWidth>
             <InputLabel>{t('common.gender')}</InputLabel>
             <Select

@@ -53,7 +53,8 @@
         "google": "Google sign-in failed. Please try again.",
         "popup_closed": "Google sign-in popup was closed.",
         "popup_cancelled": "Google sign-in was cancelled.",
-        "required_fields": "Please fill in all required fields."
+        "required_fields": "Please fill in all required fields.",
+        "google_not_signed_up": "Please sign up first before logging in with Google."
       },
       "validation": {
         "email_required": "Email is required.",
