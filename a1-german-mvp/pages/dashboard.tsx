@@ -9,7 +9,6 @@ import {
   Typography,
   Button,
   Paper,
-  IconButton,
   Collapse,
 } from '@mui/material';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
@@ -54,6 +53,7 @@ const waitForYT = (): Promise<void> => {
 const Dashboard = () => {
   const { t } = useTranslation('common');
 
+  const [hasMounted, setHasMounted] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [expandedVideoId, setExpandedVideoId] = useState<string | null>(null);
   const [progressMap, setProgressMap] = useState<Record<string, number>>({});
@@ -62,6 +62,10 @@ const Dashboard = () => {
 
   const players = useRef<Record<string, any>>({});
   const trackingIntervals = useRef<Record<string, ReturnType<typeof setInterval>>>({});
+
+  useEffect(() => {
+    setHasMounted(true); // Avoid SSR window usage
+  }, []);
 
   useEffect(() => {
     if (!document.getElementById('youtube-api')) {
@@ -162,7 +166,7 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    if (!expandedVideoId) return;
+    if (!expandedVideoId || !hasMounted) return;
 
     const video = videos.find((v) => v.id === expandedVideoId);
     if (!video) return;
@@ -196,7 +200,7 @@ const Dashboard = () => {
     };
 
     initPlayer();
-  }, [expandedVideoId, progressMap]);
+  }, [expandedVideoId, progressMap, hasMounted]);
 
   return (
     <Box sx={{ p: 4, width: '60%', minWidth: 400, mx: 'auto', color: 'text.primary' }}>
@@ -227,30 +231,32 @@ const Dashboard = () => {
 
             <Collapse in={isExpanded}>
               <Box mt={2}>
-                <Box
-                  sx={{
-                    position: 'relative',
-                    paddingBottom: '56.25%',
-                    height: 0,
-                    overflow: 'hidden',
-                    borderRadius: 2,
-                  }}
-                >
-                  <iframe
-                    id={`yt-player-${video.id}`}
-                    src={`https://www.youtube.com/embed/${getVideoId(video.url)}?enablejsapi=1&origin=${window.location.origin}`}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                      border: 0,
+                {hasMounted && (
+                  <Box
+                    sx={{
+                      position: 'relative',
+                      paddingBottom: '56.25%',
+                      height: 0,
+                      overflow: 'hidden',
+                      borderRadius: 2,
                     }}
-                    allow="autoplay; encrypted-media"
-                    allowFullScreen
-                  />
-                </Box>
+                  >
+                    <iframe
+                      id={`yt-player-${video.id}`}
+                      src={`https://www.youtube.com/embed/${getVideoId(video.url)}?enablejsapi=1&origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        border: 0,
+                      }}
+                      allow="autoplay; encrypted-media"
+                      allowFullScreen
+                    />
+                  </Box>
+                )}
 
                 <Button
                   onClick={(e) => {
