@@ -64,7 +64,7 @@ const Dashboard = () => {
   const trackingIntervals = useRef<Record<string, ReturnType<typeof setInterval>>>({});
 
   useEffect(() => {
-    setHasMounted(true); // Avoid SSR window usage
+    setHasMounted(true);
   }, []);
 
   useEffect(() => {
@@ -104,13 +104,8 @@ const Dashboard = () => {
   }, []);
 
   const toggleVideo = useCallback((id: string) => {
-    if (expandedVideoId && players.current[expandedVideoId]) {
-      stopTracking(expandedVideoId);
-      players.current[expandedVideoId].destroy?.();
-      delete players.current[expandedVideoId];
-    }
     setExpandedVideoId((prev) => (prev === id ? null : id));
-  }, [expandedVideoId]);
+  }, []);
 
   const startTracking = (videoId: string, player: any) => {
     if (trackingIntervals.current[videoId]) return;
@@ -165,42 +160,43 @@ const Dashboard = () => {
     }
   };
 
+  const initializePlayer = async (videoId: string, progressPercent: number) => {
+    await waitForYT();
+
+    const iframeId = `yt-player-${videoId}`;
+    const player = new window.YT.Player(iframeId, {
+      events: {
+        onReady: () => {
+          const seek = setInterval(() => {
+            const duration = player.getDuration?.();
+            if (duration && !isNaN(duration)) {
+              const seekTime = Math.floor((progressPercent / 100) * duration);
+              if (seekTime > 0) player.seekTo(seekTime, true);
+              clearInterval(seek);
+            }
+          }, 300);
+        },
+        onStateChange: (event: any) => {
+          if (event.data === window.YT.PlayerState.PLAYING) startTracking(videoId, player);
+          if (event.data === window.YT.PlayerState.ENDED) stopTracking(videoId);
+        },
+      },
+    });
+
+    players.current[videoId] = player;
+  };
+
   useEffect(() => {
     if (!expandedVideoId || !hasMounted) return;
 
     const video = videos.find((v) => v.id === expandedVideoId);
     if (!video) return;
 
-    const iframeId = `yt-player-${video.id}`;
-    const progressPercent = progressMap[video.id] || 0;
-
-    const initPlayer = async () => {
-      await waitForYT();
-
-      const player = new window.YT.Player(iframeId, {
-        events: {
-          onReady: () => {
-            const seek = setInterval(() => {
-              const duration = player.getDuration?.();
-              if (duration && !isNaN(duration)) {
-                const seekTime = Math.floor((progressPercent / 100) * duration);
-                if (seekTime > 0) player.seekTo(seekTime, true);
-                clearInterval(seek);
-              }
-            }, 300);
-          },
-          onStateChange: (event: any) => {
-            if (event.data === window.YT.PlayerState.PLAYING) startTracking(video.id, player);
-            if (event.data === window.YT.PlayerState.ENDED) stopTracking(video.id);
-          },
-        },
-      });
-
-      players.current[video.id] = player;
-    };
-
-    initPlayer();
-  }, [expandedVideoId, progressMap, hasMounted]);
+    if (!players.current[video.id]) {
+      const progress = progressMap[video.id] || 0;
+      initializePlayer(video.id, progress);
+    }
+  }, [expandedVideoId, hasMounted]);
 
   return (
     <Box sx={{ p: 4, width: '60%', minWidth: 400, mx: 'auto', color: 'text.primary' }}>
