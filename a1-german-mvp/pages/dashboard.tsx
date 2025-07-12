@@ -9,7 +9,10 @@ import {
   Typography,
   Button,
   Paper,
+  IconButton,
+  Collapse,
 } from '@mui/material';
+import { ExpandMore, ExpandLess } from '@mui/icons-material';
 
 interface Video {
   id: string;
@@ -201,74 +204,76 @@ const Dashboard = () => {
         📚 {t('course.dashboard')}
       </Typography>
 
-      {videos.map((video) => (
-        <Paper key={video.id} elevation={3} sx={{ mb: 4, p: 3, borderRadius: 3 }}>
-          <Box
-            onClick={() => toggleVideo(video.id)}
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              cursor: 'pointer',
-            }}
-          >
-            <Typography fontWeight="bold" fontSize="1.1rem">
-              {t(`course.lessons.${video.id}`)}
-            </Typography>
+      {videos.map((video) => {
+        const isExpanded = expandedVideoId === video.id;
 
-            <Typography fontSize="0.95rem" color="text.secondary">
-              {progressMap[video.id] || 0}% {t('course.watched')}{' '}
-              {completedMap[video.id] && '✅'}
-            </Typography>
-          </Box>
-          <Typography mt={1} color="text.secondary" fontSize="0.95rem">
-            {t(`course.lessons.${video.id}_desc`)}
-          </Typography>
-          {expandedVideoId === video.id && (
-            <Box mt={2}>
-              <Box
-                sx={{
-                  position: 'relative',
-                  paddingBottom: '56.25%',
-                  height: 0,
-                  overflow: 'hidden',
-                  borderRadius: 2,
-                }}
-              >
-                <iframe
-                  id={`yt-player-${video.id}`}
-                  src={`https://www.youtube.com/embed/${getVideoId(video.url)}?enablejsapi=1&origin=${window.location.origin}`}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    border: 0,
-                  }}
-                  allow="autoplay; encrypted-media"
-                  allowFullScreen
-                />
+        return (
+          <Paper key={video.id} elevation={3} sx={{ mb: 4, p: 3, borderRadius: 3, cursor: 'pointer' }} onClick={() => toggleVideo(video.id)}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography fontWeight="bold" fontSize="1.1rem">
+                {t(`course.lessons.${video.id}`)}
+              </Typography>
+              <Box display="flex" alignItems="center">
+                <Typography fontSize="0.95rem" color="text.secondary" mr={1}>
+                  {progressMap[video.id] || 0}% {t('course.watched')} {completedMap[video.id] && '✅'}
+                </Typography>
+                {isExpanded ? <ExpandLess /> : <ExpandMore />}
               </Box>
-
-              <Button
-                onClick={() => markAsComplete(video.id)}
-                variant="contained"
-                fullWidth
-                sx={{
-                  mt: 2,
-                  backgroundColor: completedMap[video.id] ? 'success.main' : 'primary.main',
-                }}
-                disabled={loadingCompleteId === video.id}
-              >
-                {completedMap[video.id]
-                  ? `✅ ${t('course.completed')}`
-                  : t('course.mark_complete')}
-              </Button>
             </Box>
-          )}
-        </Paper>
-      ))}
+
+            <Typography mt={1} color="text.secondary" fontSize="0.95rem">
+              {t(`course.lessons.${video.id}_desc`)}
+            </Typography>
+
+            <Collapse in={isExpanded}>
+              <Box mt={2}>
+                <Box
+                  sx={{
+                    position: 'relative',
+                    paddingBottom: '56.25%',
+                    height: 0,
+                    overflow: 'hidden',
+                    borderRadius: 2,
+                  }}
+                >
+                  <iframe
+                    id={`yt-player-${video.id}`}
+                    src={`https://www.youtube.com/embed/${getVideoId(video.url)}?enablejsapi=1&origin=${window.location.origin}`}
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      width: '100%',
+                      height: '100%',
+                      border: 0,
+                    }}
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                  />
+                </Box>
+
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    markAsComplete(video.id);
+                  }}
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    mt: 2,
+                    backgroundColor: completedMap[video.id] ? 'success.main' : 'primary.main',
+                  }}
+                  disabled={loadingCompleteId === video.id}
+                >
+                  {completedMap[video.id]
+                    ? `✅ ${t('course.completed')}`
+                    : t('course.mark_complete')}
+                </Button>
+              </Box>
+            </Collapse>
+          </Paper>
+        );
+      })}
     </Box>
   );
 };
