@@ -54,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
   return (
     <Box
       sx={{
-        width: '100vw',
+        minWidth: '100vw',
         height: '100vh',
         display: 'flex',
         flexDirection: 'column',
